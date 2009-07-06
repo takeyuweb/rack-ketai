@@ -1,0 +1,22 @@
+class Rack::Ketai::Middleware
+  
+  def initialize(app)
+    @app = app
+  end
+  
+  def call(env)
+    carrier = Rack::Ketai::Carrier.load(env)
+    return @app.call(env) unless carrier
+    
+    apply(env, carrier)
+  end
+
+  private
+  def apply(env, carrier)
+    env = env.clone
+    env['rack.ketai'] = carrier
+    env = carrier.filters.inject(env) { |env, filter| filter.inbound(env) }
+    carrier.filters.reverse.inject(@app.call(env)) { |ret, filter| filter.outbound(*ret) }
+  end
+
+end

@@ -20,10 +20,11 @@ module Rack::Ketai::Filter
         obj.each_pair do |key, value|
           obj[key] = deep_apply(value, &proc)
         end
+        obj
       when Array
         obj.collect!{ |value| deep_apply(value, &proc)}
       when NilClass, TrueClass, FalseClass, Tempfile, StringIO
-        return obj
+        obj
       else
         proc.call(obj)
       end

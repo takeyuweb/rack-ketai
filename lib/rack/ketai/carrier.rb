@@ -5,7 +5,7 @@ module Rack::Ketai::Carrier
   autoload :Au, 'rack/ketai/carrier/au'
   autoload :Softbank, 'rack/ketai/carrier/softbank'
   autoload :IPhone, 'rack/ketai/carrier/iphone'
-  
+
   def self.load(env)
     constants.each do |const|
       c = self.const_get(const)

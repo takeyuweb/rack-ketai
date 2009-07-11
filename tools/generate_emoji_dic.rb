@@ -168,6 +168,7 @@ FILE
 
 unknown = false
 emoji_table = { }
+emojiid_table = { }
 emoji.each do |id, data|
   next unless (codes = conv_table[:docomo][id]) && !codes.empty?
   docomo_unicodes = codes.collect{ |code| eval("0x#{code}") }
@@ -184,11 +185,25 @@ emoji.each do |id, data|
   if unknown
     puts docomo_unicodes.collect{ |docomo_unicode| format("0x%04X", docomo_unicode) }.join('+')
   else
-    emoji_table[docomo_sjiscodes] ||= id.to_i(16)
+    emojiid = id.to_i(16)
+    emoji_table[docomo_sjiscodes] ||= emojiid
+    emojiid_table[emojiid] = docomo_sjiscodes
   end
 end
 emoji_table.each do |codes, emojiid|
   output['docomo_sjisstr_to_emojiid'] += format(%Q{            ((sjisstr = #{ codes.inspect }.pack('n*')) && RUBY_VERSION >= '1.9.1' ? sjisstr.force_encoding('Shift_JIS') : sjisstr) => 0x%03X,\n}, emojiid)
+end
+output['docomo_sjisstr_to_emojiid'] += <<-EOF
+          }
+
+          # 単にEMOJI_TO_EMOJIID#index を使うと、
+          # 1つの絵文字が複数のIDに割り当てられている（DoCoMo SJIS-F97A など）場合
+          # 見つからなくなる
+          # 逆にEMOJIID_TO_EMOJIだけだと複数絵文字の組み合わせによるものがめんどくさい（たぶん）
+          EMOJIID_TO_EMOJI = {
+EOF
+emojiid_table.each do |emojiid, codes|
+  output['docomo_sjisstr_to_emojiid'] += format(%Q{            0x%03X => ((sjisstr = #{ codes.inspect }.pack('n*')) && RUBY_VERSION >= '1.9.1' ? sjisstr.force_encoding('Shift_JIS') : sjisstr),\n}, emojiid)
 end
 output['docomo_sjisstr_to_emojiid'] += <<-EOF
           }
@@ -231,6 +246,7 @@ FILE
 
 unknown = false
 emoji_table = { }
+emojiid_table = { }
 emoji.each do |id, data|
   next unless (codes = conv_table[:kddi][id]) && !codes.empty?
   au_unicodes = codes.collect{ |code| eval("0x#{code}") }
@@ -247,11 +263,25 @@ emoji.each do |id, data|
   if unknown
     puts au_unicodes.collect{ |au_unicode| format("0x%04X", au_unicode) }.join('+')
   else
-    emoji_table[au_sjiscodes] ||= id.to_i(16)
+    emojiid = id.to_i(16)
+    emoji_table[au_sjiscodes] ||= emojiid
+    emojiid_table[emojiid] = au_sjiscodes
   end
 end
 emoji_table.each do |codes, emojiid|
   output['au_sjisstr_to_emojiid'] += format(%Q{            ((sjisstr = #{ codes.inspect }.pack('n*')) && RUBY_VERSION >= '1.9.1' ? sjisstr.force_encoding('Shift_JIS') : sjisstr) => 0x%03X,\n}, emojiid)
+end
+output['au_sjisstr_to_emojiid'] += <<-EOF
+          }
+
+          # 単にEMOJI_TO_EMOJIID#index を使うと、
+          # 1つの絵文字が複数のIDに割り当てられている（DoCoMo SJIS-F97A など）場合
+          # 見つからなくなる
+          # 逆にEMOJIID_TO_EMOJIだけだと複数絵文字の組み合わせによるものがめんどくさい（たぶん）
+          EMOJIID_TO_EMOJI = {
+EOF
+emojiid_table.each do |emojiid, codes|
+  output['au_sjisstr_to_emojiid'] += format(%Q{            0x%03X => ((sjisstr = #{ codes.inspect }.pack('n*')) && RUBY_VERSION >= '1.9.1' ? sjisstr.force_encoding('Shift_JIS') : sjisstr),\n}, emojiid)
 end
 output['au_sjisstr_to_emojiid'] += <<-EOF
           }
@@ -298,14 +328,29 @@ FILE
 
 unknown = false
 emoji_table = { }
+emojiid_table = { }
 emoji.each do |id, data|
   next unless (codes = conv_table[:softbank][id]) && !codes.empty?
   softbank_unicodes = codes.collect{ |code| eval("0x#{code}") }
 
-  emoji_table[softbank_unicodes] ||= id.to_i(16)
+  emojiid = id.to_i(16)
+  emoji_table[softbank_unicodes] ||= emojiid
+  emojiid_table[emojiid] = softbank_unicodes
 end
 emoji_table.each do |codes, emojiid|
   output['softbank_utf8str_to_emojiid'] += format(%Q{            "%s" => 0x%03X,\n}, codes.pack('U*'), emojiid)
+end
+output['softbank_utf8str_to_emojiid'] += <<-EOF
+          }
+
+          # 単にEMOJI_TO_EMOJIID#index を使うと、
+          # 1つの絵文字が複数のIDに割り当てられている（DoCoMo SJIS-F97A など）場合
+          # 見つからなくなる
+          # 逆にEMOJIID_TO_EMOJIだけだと複数絵文字の組み合わせによるものがめんどくさい（たぶん）
+          EMOJIID_TO_EMOJI = {
+EOF
+emojiid_table.each do |emojiid, codes|
+  output['softbank_utf8str_to_emojiid'] += format(%Q{            0x%03X => "%s",\n}, emojiid, codes.pack('U*'))
 end
 output['softbank_utf8str_to_emojiid'] += <<-EOF
           }

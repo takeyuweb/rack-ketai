@@ -45,7 +45,7 @@ class Rack::Ketai::Carrier::Softbank
       body = body.collect do |str|
         str.gsub(/\[e:([0-9A-F]{3})\]/) do |match|
           emojiid = $1.scanf('%X').first
-          utf8str = EMOJI_TO_EMOJIID.index(emojiid)
+          utf8str = EMOJIID_TO_EMOJI[emojiid]
           if utf8str
             # 絵文字があるので差替え
             utf8str.split(//u).collect { |b| "\x1B$"+WEBCODE_TO_EMOJI.index(b)+"\x0F" }.join("")

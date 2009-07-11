@@ -41,6 +41,16 @@ describe Rack::Ketai::Carrier::Au::Filter, "外部エンコーディングに変
     end
   end
 
+  it "データ中に絵文字ID＝絵文字IDだが絵文字≠絵文字IDのIDが含まれているとき、正しく逆変換できること" do
+    emoji = [0xF649].pack('n')
+    emoji.force_encoding('Shift_JIS') if RUBY_VERSION > '1.9.1'
+    resdata = "たとえば".tosjis+emoji+"「e-338 HAPPY FACE WITH OPEN MOUTH AND RAISED EYEBROWS」とか。".tosjis
+
+    status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, ["たとえば[e:338]「e-338 HAPPY FACE WITH OPEN MOUTH AND RAISED EYEBROWS」とか。"])
+    
+    body[0].should == resdata
+  end
+
   it "データ中にauにはない絵文字IDが存在するとき、代替文字を表示すること" do
     resdata = "Soon[SOON]です".tosjis # soon
 

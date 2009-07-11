@@ -38,7 +38,7 @@ class Rack::Ketai::Carrier::Docomo
       body = body.collect do |str|
         str.gsub(/\[e:([0-9A-F]{3})\]/) do |match|
           emojiid = $1.scanf('%X').first
-          sjis = EMOJI_TO_EMOJIID.index(emojiid)
+          sjis = EMOJIID_TO_EMOJI[emojiid]
           if sjis
             # 絵文字があるので差替え
             sjis

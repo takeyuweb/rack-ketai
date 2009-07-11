@@ -76,6 +76,15 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "外部フィルタを適用す
     body[0].should == resdata
   end
 
+  it "データ中に絵文字ID＝絵文字IDだが絵文字≠絵文字IDのIDが含まれているとき、正しく逆変換できること" do
+    emoji = [0xF649].pack('n')
+    resdata = "たとえば\x1B$P*\x0F「e-33E RELIEVED FACE」とか。"
+
+    status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, ["たとえば[e:33E]「e-33E RELIEVED FACE」とか。"])
+    
+    body[0].should == resdata
+  end
+
   it "データ中にSoftBankにはない絵文字IDが存在するとき、代替文字を表示すること" do
     resdata = "Soon[SOON]です" # soon
 

@@ -16,7 +16,9 @@ class Rack::Ketai::Middleware
     env = env.clone
     env['rack.ketai'] = carrier
     env = carrier.filters.inject(env) { |env, filter| filter.inbound(env) }
-    carrier.filters.reverse.inject(@app.call(env)) { |ret, filter| filter.outbound(*ret) }
+    ret = @app.call(env)
+    ret[2] = ret[2].body if ret[2].is_a?(Rack::Response)
+    carrier.filters.reverse.inject(ret) { |r, filter| filter.outbound(*r) }
   end
 
 end

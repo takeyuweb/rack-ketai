@@ -30,11 +30,11 @@ class Rack::Ketai::Carrier::Softbank
           format("[e:%03X]", EMOJI_TO_EMOJIID[match])
         end
       end
-      deep_apply(env["rack.request.query_hash"], &converter)
-      deep_apply(env["rack.request.form_hash"], &converter)
+      deep_apply(request.env["rack.request.query_hash"], &converter)
+      deep_apply(request.env["rack.request.form_hash"], &converter)
       
       # 文字コード変換
-      super(env)
+      super(request.env)
     end
     
     def outbound(status, headers, body)

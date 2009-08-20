@@ -41,7 +41,10 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
     end
 
     # 複数の絵文字IDに割り当てられている絵文字
+    resdata = "ラブホテル".tosjis + [0xF8CA].pack('n*') + [0xF994].pack('n*')
+    status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, ['ラブホテル[e:4B8]'])
     
+    body[0].should == resdata
   end
 
   it "データ中に絵文字ID＝絵文字IDだが絵文字≠絵文字IDのIDが含まれているとき、正しく逆変換できること" do

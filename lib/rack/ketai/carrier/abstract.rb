@@ -19,7 +19,7 @@ module Rack::Ketai::Carrier
     end
 
     def initialize(env)
-      @env = env.clone
+      @env = env
     end
     
     USER_AGENT_REGEXP = nil
@@ -94,8 +94,8 @@ class Rack::Ketai::Carrier::Abstract
         value
       }
 
-      full_apply(env["rack.request.query_hash"],
-                 env["rack.request.form_hash"],
+      full_apply(request.env["rack.request.query_hash"],
+                 request.env["rack.request.form_hash"],
                  &converter)
 
       request.env

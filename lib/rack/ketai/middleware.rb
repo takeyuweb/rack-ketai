@@ -1,24 +1,26 @@
+# -*- coding: utf-8 -*-
 class Rack::Ketai::Middleware
   
-  def initialize(app)
+  def initialize(app, options)
     @app = app
+    @options = options.dup.clone
   end
   
   def call(env)
-    carrier = Rack::Ketai::Carrier.load(env)
-    return @app.call(env) unless carrier
-    
-    apply(env, carrier)
+    apply(env, Rack::Ketai::Carrier.load(env))
   end
 
   private
+  # 処理適用
+  # 携帯端末からのアクセスの場合のみ、
+  # env['rack.ketai'] に該当キャリア情報インスタンスをセット
   def apply(env, carrier)
     env = env.clone
-    env['rack.ketai'] = carrier
-    env = carrier.filters.inject(env) { |env, filter| filter.inbound(env) }
-    ret = @app.call(env)
-    ret[2] = ret[2].body if ret[2].is_a?(Rack::Response)
-    carrier.filters.reverse.inject(ret) { |r, filter| filter.outbound(*r) }
+    env['rack.ketai'] = carrier if carrier.mobile?
+
+    carrier.filtering(env, @options) do |processed_env|
+      @app.call(processed_env)
+    end
   end
 
 end

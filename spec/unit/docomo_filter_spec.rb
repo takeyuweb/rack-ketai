@@ -4,7 +4,7 @@ require 'rack/ketai/carrier/docomo'
 describe Rack::Ketai::Carrier::Docomo::Filter, "内部エンコーディングに変換する時" do
 
   before(:each) do
-    @filter = Rack::Ketai::Carrier::Docomo::Filter.instance
+    @filter = Rack::Ketai::Carrier::Docomo::Filter.new
   end
   
   it "POSTデータ中のSJISバイナリの絵文字を絵文字IDに変換すること" do
@@ -27,7 +27,7 @@ end
 describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディングに変換する時" do
 
   before(:each) do
-    @filter = Rack::Ketai::Carrier::Docomo::Filter.instance
+    @filter = Rack::Ketai::Carrier::Docomo::Filter.new
   end
   
   it "データ中の絵文字IDをSJISの絵文字コードに変換すること" do

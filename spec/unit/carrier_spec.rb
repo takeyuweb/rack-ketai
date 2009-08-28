@@ -20,8 +20,9 @@ describe Rack::Ketai::Carrier, "#load を実行するとき" do
       obj = Rack::Ketai::Carrier.load(env)
       if carrier
         obj.should be_is_a(carrier)
+        obj.should be_mobile
       else
-        obj.should be_nil
+        obj.should_not be_mobile
       end
     end
   end

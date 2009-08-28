@@ -4,7 +4,7 @@ require 'rack/ketai/carrier/softbank'
 describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用する時" do
 
   before(:each) do
-    @filter = Rack::Ketai::Carrier::Softbank::Filter.instance
+    @filter = Rack::Ketai::Carrier::Softbank::Filter.new
   end
   
   it "POSTデータ中のUTF-8バイナリの絵文字を絵文字IDに変換すること" do
@@ -56,7 +56,7 @@ end
 describe Rack::Ketai::Carrier::Softbank::Filter, "外部フィルタを適用する時" do
 
   before(:each) do
-    @filter = Rack::Ketai::Carrier::Softbank::Filter.instance
+    @filter = Rack::Ketai::Carrier::Softbank::Filter.new
   end
   
   it "データ中の絵文字IDをウェブコードに変換すること" do

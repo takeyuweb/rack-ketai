@@ -8,6 +8,7 @@
 * 携帯電話キャリア判別
 * 入出力文字コード変換（DoCoMo、auのみ）
 * 絵文字キャリア間変換
+* PCでの絵文字表示（TypePadの絵文字使用）
 
 == 使用例
 
@@ -26,6 +27,8 @@
       "こんにちは、Au世界！"
     when Rack::Ketai::Carrier::Softbank
       "こんにちは、Softbank世界！"
+    when nil
+      "こんにちは、携帯端末以外世界！"
     else
       "こんにちは、その他の世界！"
     end
@@ -39,6 +42,17 @@ DoCoMoまたはauの携帯電話との通信でShift_JISを使うようになり
 （XXX はemoji4unicodeによる絵文字のID）
 文字列に置き換えるようにしたのは、PCからの絵文字の入力・表示への対応を容易にするためです。
 出力時にキャリアに応じた絵文字コードに変換します。
+
+=== PCでの絵文字表示
+SixApartが公開している絵文字アイコン画像を別途ダウンロード・配置し、簡単なコードを追加することで携帯キャリア以外でのアクセスの際に絵文字画像を表示できます。
+
+TypePadの絵文字アイコン画像と、携帯コンテンツ表示モジュールをフリー（自由）ライセンスで公開
+http://start.typepad.jp/typecast/
+
+絵文字アイコンをダウンロードし、public/images/emoticons/*.gif に配置した場合の例
+  use Rack::Static, :urls => ['/images'], :root => 'public'
+  use Rack::Ketai, :emoticons_path => '/images/emoticons'
+  run MyApp.new
 
 === 作者
 

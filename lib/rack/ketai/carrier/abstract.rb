@@ -8,13 +8,8 @@ module Rack::Ketai::Carrier
   class Abstract
 
     class << self
-      @@filter_table = { }
-      def filters=(obj)
-        @@filter_table[self] = obj.is_a?(Array) ? obj : [obj]
-      end
-
       def filters
-        @@filter_table[self] ||= []
+        []
       end
     end
 
@@ -24,15 +19,22 @@ module Rack::Ketai::Carrier
     
     USER_AGENT_REGEXP = nil
 
-    def filters
-      self.class.filters
+    def filtering(env, options = { }, &block)
+      env = filters(options).inject(env) { |env, filter| filter.inbound(env) }
+      ret = block.call(env)
+      ret[2] = ret[2].body if ret[2].is_a?(Rack::Response)
+      filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
     end
 
-    private
-    def inbound_filter
+    def filters(options = { })
+      self.class.filters.collect do |klass|
+        klass.new(options)
+      end
     end
-
-    def outbound_filter
+    
+    # 携帯端末か
+    def mobile?
+      false
     end
 
   end
@@ -40,8 +42,11 @@ end
 
 class Rack::Ketai::Carrier::Abstract
   class Filter
-    include Singleton
 
+    def initialize(options = { })
+      @options = options.clone
+    end
+    
     def inbound(env)
       env
     end

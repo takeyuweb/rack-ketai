@@ -1,6 +1,7 @@
 module Rack::Ketai::Carrier
 
   autoload :Abstract, 'rack/ketai/carrier/abstract'
+  autoload :General, 'rack/ketai/carrier/general'
   autoload :Docomo, 'rack/ketai/carrier/docomo'
   autoload :Au, 'rack/ketai/carrier/au'
   autoload :Softbank, 'rack/ketai/carrier/softbank'
@@ -11,7 +12,7 @@ module Rack::Ketai::Carrier
       c = self.const_get(const)
       return c.new(env) if c::USER_AGENT_REGEXP && env['HTTP_USER_AGENT'] =~ c::USER_AGENT_REGEXP
     end
-    nil
+    General.new(env)
   end
 
 end

@@ -15,6 +15,7 @@ module Rack::Ketai::Carrier
         request.params  # 最低でも1回呼んでないと query_stringが未設定
         
         converter = lambda do |value|
+          value.force_encoding('Shift_JIS') if value.respond_to?(:force_encoding)
           value.gsub(sjis_regexp) do |match|
             format("[e:%03X]", EMOJI_TO_EMOJIID[match])
           end
@@ -58,14 +59,14 @@ module Rack::Ketai::Carrier
       # そっちを優先的にマッチさせる
       def sjis_regexp
         @sjis_regexp if @sjis_regexp
-        matchers = if RUBY_VERSION >= '1.9.1'
-                     EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.new(Regexp.escape(sjis), nil)}
-                   else
-                     EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.new(Regexp.escape(sjis, 's'), nil, 's')}
-                   end
-        @sjis_regexp = Regexp.union(*matchers)
+        @sjis_regexp = if RUBY_VERSION >= '1.9.1'
+                         codes = EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.escape(sjis)}
+                         Regexp.new(codes.join('|'), nil)
+                       else
+                         codes = EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.escape(sjis, 's') }
+                         Regexp.new(codes.join('|'), nil, 's')
+                       end
       end
-      
     end
 
     class << self

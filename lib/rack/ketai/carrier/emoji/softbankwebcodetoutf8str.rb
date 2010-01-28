@@ -487,7 +487,7 @@ module Rack
 
           # 1.8系、1.9系 互換性維持のため
           if RUBY_VERSION >= '1.9.0'
-            def EMOJI_TO_EMOJIID.index(val)
+            def WEBCODE_TO_EMOJI.index(val)
               key(val)
             end
           end

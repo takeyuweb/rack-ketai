@@ -3,6 +3,7 @@ require 'tempfile'
 require 'singleton'
 require 'nkf'
 require 'rack/request'
+require 'stringio'
 
 module Rack::Ketai::Carrier
   class Abstract

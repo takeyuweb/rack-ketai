@@ -21,7 +21,7 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "内部エンコーディング�
       request.params['message'].should == '今日はいい[e:'+format("%03X", emojiid)+']ですね。'
     end
   end
-  
+
 end
 
 describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディングに変換する時" do
@@ -41,15 +41,18 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
     end
 
     # 複数の絵文字IDに割り当てられている絵文字
-    resdata = "ラブホテル".tosjis + [0xF8CA].pack('n*') + [0xF994].pack('n*')
+    hotel = [0xF8CA].pack('n*')
+    harts = [0xF994].pack('n*')
+    [hotel, harts].each{ |e| e.force_encoding('Shift_JIS') if e.respond_to?(:force_encoding) }
+    resdata = "ラブホテル".tosjis + hotel + harts
     status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, ['ラブホテル[e:4B8]'])
     
     body[0].should == resdata
   end
 
-  it "データ中に絵文字ID＝絵文字IDだが絵文字≠絵文字IDのIDが含まれているとき、正しく逆変換できること" do
+  it "データ中に絵文字ID＝絵文字IDだが絵文字!=絵文字IDのIDが含まれているとき、正しく逆変換できること" do
     emoji = [0xF995].pack('n')
-    emoji.force_encoding('Shift_JIS') if RUBY_VERSION > '1.9.1'
+    emoji.force_encoding('Shift_JIS') if emoji.respond_to?(:force_encoding)
     resdata = "たとえば".tosjis+emoji+"「e-330 HAPPY FACE WITH OPEN MOUTH」とか。".tosjis
 
     status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, ["たとえば[e:330]「e-330 HAPPY FACE WITH OPEN MOUTH」とか。"])

@@ -16,12 +16,12 @@ module Rack::Ketai::Carrier
         request.params  # 最低でも1回呼んでないと query_stringが未設定
         
         converter = lambda do |value|
+          value.force_encoding('UTF-8') if value.respond_to?(:force_encoding)
           # まずウェブコードを変換
           value = value.gsub(/\x1B\$([GEFOPQ])([\x21-\x7E]+)\x0F/u) do |match|
             head = $1
-            $2.split(//u).collect { |b| WEBCODE_TO_EMOJI[head+b]}
+            $2.split(//u).collect { |b| WEBCODE_TO_EMOJI[head+b]}.join('')
           end
-          
           # UTF-8バイナリから絵文字IDに
           value.gsub(emoji_utf8_regexp) do |match|
             format("[e:%03X]", EMOJI_TO_EMOJIID[match])

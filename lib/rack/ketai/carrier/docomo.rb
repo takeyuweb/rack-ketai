@@ -22,7 +22,7 @@ module Rack::Ketai::Carrier
         end
         deep_apply(request.env["rack.request.query_hash"], &converter)
         deep_apply(request.env["rack.request.form_hash"], &converter)
-        
+
         # 文字コード変換
         super(request.env)
       end
@@ -77,6 +77,25 @@ module Rack::Ketai::Carrier
     
     def mobile?
       true
+    end
+
+    # 端末個体識別子があれば返す。
+    def deviceid
+      case @env['HTTP_USER_AGENT']
+      when /ser([0-9a-zA-Z]{11})$/ # mova
+        return $1
+      when /ser([0-9a-zA-Z]{15});/ # FOMA
+        return $1
+      else
+        return nil
+      end
+    end
+
+    # iモードIDかFOMAカード個体識別子を返す
+    # iモードIDの方が優先度が高い
+    def subscriberid
+      @env['HTTP_X_DCMGUID'] =~ /([0-9A-Za-z]{7})/ || @env['HTTP_USER_AGENT'] =~ /icc([0-9a-zA-Z]{20})\)/
+      $1
     end
 
   end

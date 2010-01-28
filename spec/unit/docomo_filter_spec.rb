@@ -15,6 +15,7 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "内部エンコーディング�
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',
                                       'HTTP_USER_AGENT' => 'DoCoMo/2.0 P903i',
+                                      :method => 'POST', # rack 1.1.0 以降ではこれがないとパーサが動かない
                                       :input => postdata)
       env = @filter.inbound(env)
       request = Rack::Request.new(env)

@@ -15,6 +15,7 @@ describe Rack::Ketai::Carrier::Au::Filter, "内部エンコーディングに変
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',
                                       'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0',
+                                      :method => 'POST', 
                                       :input => postdata)
       env = @filter.inbound(env)
       request = Rack::Request.new(env)

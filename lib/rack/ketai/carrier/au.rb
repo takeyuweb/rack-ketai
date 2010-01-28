@@ -81,6 +81,11 @@ module Rack
           true
         end
 
+        def subscriberid
+          @env['HTTP_X_UP_SUBNO'].to_s =~ /^(\d{14}_\w{2}.ezweb.ne.jp)$/
+          $1
+        end
+
       end
     end
   end

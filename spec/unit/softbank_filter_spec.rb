@@ -15,6 +15,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',
                                       'HTTP_USER_AGENT' => 'Softbank/2.0 P903i',
+                                      :method => 'POST', 
                                       :input => postdata)
       env = @filter.inbound(env)
       request = Rack::Request.new(env)
@@ -32,6 +33,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',
                                       'HTTP_USER_AGENT' => 'Softbank/2.0 P903i',
+                                      :method => 'POST', 
                                       :input => postdata)
       env = @filter.inbound(env)
       request = Rack::Request.new(env)
@@ -45,6 +47,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
     
     env = Rack::MockRequest.env_for('http://hoge.com/dummy',
                                     'HTTP_USER_AGENT' => 'Softbank/2.0 P903i',
+                                    :method => 'POST', 
                                     :input => postdata)
     env = @filter.inbound(env)
     request = Rack::Request.new(env)

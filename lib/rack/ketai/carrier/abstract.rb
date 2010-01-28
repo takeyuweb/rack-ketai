@@ -38,6 +38,23 @@ module Rack::Ketai::Carrier
       false
     end
 
+    # サブスクライバID
+    # 契約者毎にユニーク
+    def subscriberid
+      nil
+    end
+
+    # デバイスID
+    # 端末毎にユニーク
+    def deviceid
+      nil
+    end
+    
+    # 識別情報
+    def ident
+      subscriberid || deviceid
+    end
+
   end
 end
 

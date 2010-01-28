@@ -81,6 +81,16 @@ module Rack::Ketai::Carrier
       true
     end
 
+    def subscriberid
+      @env['HTTP_X_JPHONE_UID'].to_s =~ /^([A-z|0-9]+)$/
+      $1
+    end
+
+    def deviceid
+      @env['HTTP_USER_AGENT'].to_s =~ /\/SN(\w+) /
+      $1
+    end
+
   end
 end
 

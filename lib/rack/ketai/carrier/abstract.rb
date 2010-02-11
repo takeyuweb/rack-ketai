@@ -4,6 +4,7 @@ require 'singleton'
 require 'nkf'
 require 'rack/request'
 require 'stringio'
+require 'ipaddr'
 
 module Rack::Ketai::Carrier
   class Abstract
@@ -12,6 +13,18 @@ module Rack::Ketai::Carrier
       def filters
         []
       end
+
+      def valid_addr?(remote_addr)
+        cidrs = nil
+        begin
+          cidrs = self::CIDRS
+        rescue NameError
+          return nil
+        end
+        remote = IPAddr.new(remote_addr)
+        cidrs.any?{ |cidr| cidr.include?(remote) }
+      end
+      alias :valid_ip? :valid_addr?
     end
 
     def initialize(env)
@@ -21,10 +34,10 @@ module Rack::Ketai::Carrier
     USER_AGENT_REGEXP = nil
 
     def filtering(env, options = { }, &block)
-      env = filters(options).inject(env) { |env, filter| filter.inbound(env) }
+      env = options[:disable_filter] ? env : filters(options).inject(env) { |env, filter| filter.inbound(env) }
       ret = block.call(env)
       ret[2] = ret[2].body if ret[2].is_a?(Rack::Response)
-      filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
+      options[:disable_filter] ? ret : filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
     end
 
     def filters(options = { })
@@ -55,6 +68,11 @@ module Rack::Ketai::Carrier
       subscriberid || deviceid
     end
 
+    # キャリアのIPアドレス帯を利用しているか
+    def valid_addr?
+      self.class.valid_ip? @env['HTTP_X_FORWARDED_FOR'] || @env['REMOTE_ADDR']
+    end
+    alias :valid_ip? :valid_addr?
   end
 end
 
@@ -70,6 +88,12 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def outbound(status, headers, body)
+      case headers['Content-Type']
+      when /charset=(\w+)/i
+        headers['Content-Type'].sub!(/charset=\w+/, 'charset=utf-8')
+      else
+        headers['Content-Type'] << "; charset=utf-8"
+      end
       [status, headers, body]
     end
 

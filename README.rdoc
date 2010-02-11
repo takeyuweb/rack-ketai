@@ -1,16 +1,17 @@
 = rack-ketai: A Rack Middleware for Japanese mobile-phones
 
 == rack-ketaiとは
-携帯電話向けサイトを構築する際に役立ちそうな機能を提供するミドルウェアです。
-ただし、今のところ、以下の機能しかないです。
+携帯電話向けサイトを構築する際に役立ちそうな機能を提供する（ことが目標の）ミドルウェアです。
 ものすごくjpmobileを参考にしてます。（が、あんなに良くできたものではありません）
 
 * 携帯電話キャリア判別
+* ユーザID、端末IDの取得
+* IPアドレス帯域の正当性チェック
 * 入出力文字コード変換（DoCoMo、auのみ）
 * 絵文字キャリア間変換
 * PCでの絵文字表示（TypePadの絵文字使用）
 
-テスト環境もまともにないので、万年テスト中です。
+テスト環境もまともにないので、万年αテスト中です。
 
 == 使用例
 
@@ -29,21 +30,42 @@
       "こんにちは、Au世界！"
     when Rack::Ketai::Carrier::Softbank
       "こんにちは、Softbank世界！"
-    when nil
-      "こんにちは、携帯端末以外世界！"
     else
       "こんにちは、その他の世界！"
     end
   end
 
+単に携帯電話でのアクセスか識別するのであれば、#mobile?を使います。
+  env['rack.ketai'].mobile?
+
+=== ユーザID、端末IDの取得
+各キャリアの利用者の識別に関する情報の扱いを一元化します。
+これにより、携帯サイトでのユーザ認証等が容易になります。（後述のIPアドレス帯域チェックと併用すること）
+  ketai = env['rack.ketai']
+  ketai.subscriberid  # ユーザID：iモードID or FOMAカード製造番号/EZ番号/x-jphone-uid
+  ketai.deviceid      # 端末ID：端末製造番号(DoCoMo)/端末シリアル(SoftbankMobile)
+  ketai.ident         # ユーザか端末を識別する情報（ユーザID or 端末製造番号）
+
+=== IPアドレス帯域の正当性チェック
+ユーザのアクセス元のIPアドレスがキャリアが公開するアドレス帯に含まれているか確認できます。
+ユーザID等の偽装防止等に役立ちます。
+  ketai = env['rack.ketai']
+  unless ketai.mobile? && ketai.valid_addr?
+    # 携帯からのアクセスでない
+  end
+
 === 入出力文字コード変換
 DoCoMoまたはauの携帯電話との通信でShift_JISを使うようになります。
+Content-typeも便宜書き換えます。
 
 === 絵文字キャリア間変換
 入力された絵文字を、emoji4unicodeによる変換テーブルを元に [e:XXX] という文字列に置き換えます。
 （XXX はemoji4unicodeによる絵文字のID）
 文字列に置き換えるようにしたのは、PCからの絵文字の入力・表示への対応を容易にするためです。
 出力時にキャリアに応じた絵文字コードに変換します。
+
+なお、文字コード変換及び絵文字変換を行いたくない場合は、<tt>:disable_filter</tt>オプションを設定します。
+  use Rack::Ketai, :disable_filter => true
 
 === PCでの絵文字表示
 SixApartが公開している絵文字アイコン画像を別途ダウンロード・配置し、簡単なコードを追加することで携帯キャリア以外でのアクセスの際に絵文字画像を表示できます。
@@ -58,7 +80,7 @@ http://start.typepad.jp/typecast/
 
 === 作者
 
-Copyright 2009 (c) Yuichi Takeuchi, under MIT License
+Copyright 2009-2010 (c) Yuichi Takeuchi, under MIT License
 
 Yuichi Takeuchi <mizincogrammer@gmail.com>
 

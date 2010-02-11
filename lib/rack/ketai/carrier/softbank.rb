@@ -4,8 +4,10 @@ require 'scanf'
 
 module Rack::Ketai::Carrier
   class Softbank < Abstract
+    autoload :CIDRS, 'rack/ketai/carrier/cidrs/softbank'
+    
     # Semulator はウェブコンテンツビューアのUA
-    USER_AGENT_REGEXP = /^(?:SoftBank|Semulator)/
+    USER_AGENT_REGEXP = /^(?:Vodafone|SoftBank|Semulator)/
 
     class Filter < ::Rack::Ketai::Carrier::Abstract::Filter
       
@@ -36,7 +38,6 @@ module Rack::Ketai::Carrier
       
       def outbound(status, headers, body)
         status, headers, body = super
-        
         return [status, headers, body] unless body[0]
         
         body = body.collect do |str|

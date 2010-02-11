@@ -4,6 +4,8 @@ require 'scanf'
 
 module Rack::Ketai::Carrier
   class Docomo < Abstract
+    autoload :CIDRS, 'rack/ketai/carrier/cidrs/docomo'
+    
     USER_AGENT_REGEXP = /^DoCoMo/
 
     class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter
@@ -50,6 +52,8 @@ module Rack::Ketai::Carrier
         content = (body.is_a?(Array) ? body[0] : body).to_s
         headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
         
+        headers['Content-Type'].sub! Regexp.new(Regexp.quote('text/html')), 'application/xhtml+xml'
+
         [status, headers, body]
       end
       

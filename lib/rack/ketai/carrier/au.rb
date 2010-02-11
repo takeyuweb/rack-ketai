@@ -5,6 +5,8 @@ module Rack
   module Ketai
     module Carrier
       class Au < Abstract
+        autoload :CIDRS, 'rack/ketai/carrier/cidrs/au'
+        
         USER_AGENT_REGEXP = /^(?:KDDI|UP.Browser\/.+?)-(.+?) /
   
         class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter

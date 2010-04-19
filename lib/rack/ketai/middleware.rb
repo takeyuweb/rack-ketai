@@ -16,7 +16,16 @@ class Rack::Ketai::Middleware
   # env['rack.ketai'] に該当キャリア情報インスタンスをセット
   def apply(env, carrier)
     env = env.clone
-    env['rack.ketai'] = carrier if carrier.mobile?
+    if carrier.mobile?
+      env['rack.ketai'] = carrier
+    else
+      # 互換性維持のため..
+      obj = nil
+      def obj.mobile?
+        false
+      end
+      env['rack.ketai'] = obj      
+    end
 
     carrier.filtering(env, @options) do |processed_env|
       @app.call(processed_env)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
-# 2010.2.11時点
+# 2010.4.19時点
 
 Rack::Ketai::Carrier::Au::CIDRS = %w(
 210.230.128.224/28

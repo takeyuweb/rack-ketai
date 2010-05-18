@@ -136,7 +136,7 @@ class Rack::Ketai::Carrier::Abstract
     def outbound(status, headers, body)
       case headers['Content-Type']
       when /charset=(\w+)/i
-        headers['Content-Type'].sub!(/charset=\w+/, 'charset=utf-8')
+        headers['Content-Type'].sub!(/charset=(\w|\-)+/, 'charset=utf-8')
       else
         headers['Content-Type'] << "; charset=utf-8"
       end

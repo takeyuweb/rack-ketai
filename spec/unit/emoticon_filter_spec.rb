@@ -62,7 +62,7 @@ describe Rack::Ketai::Carrier::General::EmoticonFilter, "外部フィルタを�
     str = '今日はいい[e:'+format("%03X", emojiid)+']ですね。'
     tag = filenames.collect{ |filename| "<img src=\"/images/emoticons/#{filename}.gif\" />" }.join('')
     
-    %w(text/plain text/xml text/json application/json text/javascript application/rss+xml).each do |contenttype|
+    %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg).each do |contenttype|
       resdata = str
     
       status, headers, body = @filter.outbound(200, { "Content-Type" => contenttype}, ['今日はいい[e:'+format("%03X", emojiid)+']ですね。'])
@@ -70,7 +70,7 @@ describe Rack::Ketai::Carrier::General::EmoticonFilter, "外部フィルタを�
       body[0].should == resdata
     end
 
-    %w(text/html text/xhtml application/xhtml+xml).each do |contenttype|
+    %w(text/html application/xhtml+xml).each do |contenttype|
       resdata = '今日はいい'+tag+'ですね。'
     
       status, headers, body = @filter.outbound(200, { "Content-Type" => contenttype}, ['今日はいい[e:'+format("%03X", emojiid)+']ですね。'])

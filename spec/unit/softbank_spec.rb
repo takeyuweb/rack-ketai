@@ -104,6 +104,64 @@ describe "Rack::Ketai::Carrier::Softbank" do
       end
     end
 
+    describe "ディスプレイ情報を取得できること" do
+      
+      describe "既知の端末のとき" do 
+
+        it "環境変数を優先すること" do
+          @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                           'HTTP_USER_AGENT' => 'SoftBank/1.0/933SH/SHJ002[/Serial] Browser/NetFront/3.5 Profile/MIDP-2.0 Configuration/CLDC-1.1',
+                                           'HTTP_X_JPHONE_DISPLAY' => '1024*768',
+                                           'HTTP_X_JPHONE_COLOR' => 'C256')
+          @mobile = Rack::Ketai::Carrier::Softbank.new(@env)
+          display = @mobile.display
+          display.should_not be_nil
+          display.colors.should == 256
+          display.width.should == 1024
+          display.height.should == 768
+          
+          @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                           'HTTP_USER_AGENT' => 'SoftBank/1.0/933SH/SHJ002[/Serial] Browser/NetFront/3.5 Profile/MIDP-2.0 Configuration/CLDC-1.1')
+          @mobile = Rack::Ketai::Carrier::Softbank.new(@env)
+          display = @mobile.display
+          display.should_not be_nil
+          display.colors.should == 16777216
+          display.width.should == 480
+          display.height.should == 738
+        end
+
+      end
+
+      describe "未知の端末のとき" do 
+
+        it "環境変数から設定すること" do
+          @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                           'HTTP_USER_AGENT' => 'SoftBank/1.0/100XX/SHJ002[/Serial] Browser/NetFront/3.5 Profile/MIDP-2.0 Configuration/CLDC-1.1',
+                                           'HTTP_X_JPHONE_DISPLAY' => '1024*768',
+                                           'HTTP_X_JPHONE_COLOR' => 'C256')
+          @mobile = Rack::Ketai::Carrier::Softbank.new(@env)
+          display = @mobile.display
+          display.should_not be_nil
+          display.colors.should == 256
+          display.width.should == 1024
+          display.height.should == 768
+        end
+
+        it "環境変数が無かったら慌てず騒がず nil を返す" do
+          @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                           'HTTP_USER_AGENT' => 'SoftBank/1.0/100XX/SHJ002[/Serial] Browser/NetFront/3.5 Profile/MIDP-2.0 Configuration/CLDC-1.1')
+          @mobile = Rack::Ketai::Carrier::Softbank.new(@env)
+          display = @mobile.display
+          display.should_not be_nil
+          display.colors.should be_nil
+          display.width.should be_nil
+          display.height.should be_nil
+        end
+
+      end
+
+    end
+
   end
 
 end

@@ -114,6 +114,16 @@ module Rack::Ketai::Carrier
       subscriberid || deviceid
     end
 
+    # 機種名（略名）
+    def name
+      nil
+    end
+
+    # ディスプレイ情報
+    def display
+      Rack::Ketai::Display.new
+    end
+
     # キャリアのIPアドレス帯を利用しているか
     def valid_addr?
       self.class.valid_ip? @env['HTTP_X_FORWARDED_FOR'] || @env['REMOTE_ADDR']
@@ -130,10 +140,19 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def inbound(env)
-      env
+      apply_incoming?(env) ? to_internal(env) : env
     end
     
     def outbound(status, headers, body)
+      apply_outgoing?(status, headers, body) ? to_external(status, headers, body) : [status, headers, body]
+    end
+
+    private
+    def to_internal(env)
+      env
+    end
+    
+    def to_external(status, headers, body)
       case headers['Content-Type']
       when /charset=(\w+)/i
         headers['Content-Type'].sub!(/charset=(\w|\-)+/, 'charset=utf-8')
@@ -142,8 +161,7 @@ class Rack::Ketai::Carrier::Abstract
       end
       [status, headers, body]
     end
-
-    private
+    
     def full_apply(*argv, &proc)
       argv.each do |obj|
         deep_apply(obj, &proc)
@@ -166,12 +184,19 @@ class Rack::Ketai::Carrier::Abstract
       end
     end
 
+    def apply_incoming?(env); true; end
+    def apply_outgoing?(status, headers, body)
+      headers['Content-Type'] !~ /^(.+?)(?:;|$)/
+      [nil, "text/html", "application/xhtml+xml"].include?($1)
+    end
+
   end
 
   
   class SjisFilter < Filter
 
-    def inbound(env)
+    private
+    def to_internal(env)
       request = Rack::Request.new(env)
       
       # 最低でも1回呼んでないと query_string, form_hash等が未設定
@@ -194,7 +219,7 @@ class Rack::Ketai::Carrier::Abstract
       request.env
     end
     
-    def outbound(status, headers, body)
+    def to_external(status, headers, body)
       if body.is_a?(Array)
         body = body.collect do |str|
           NKF.nkf('-m0 -x -Ws', str)
@@ -209,10 +234,10 @@ class Rack::Ketai::Carrier::Abstract
       else
         headers['Content-Type'] << "; charset=shift_jis"
       end
-
+      
       content = (body.is_a?(Array) ? body[0] : body).to_s
       headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
-      
+    
       [status, headers, body]
     end
     

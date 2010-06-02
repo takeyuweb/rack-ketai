@@ -102,6 +102,39 @@ describe "Rack::Ketai::Carrier::Docomo" do
       end
     end
 
+    it "#name で機種名を取得できること" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => "DoCoMo/2.0 SH02A")
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.name.should == 'SH02A'
+    end
+
+    describe "ディスプレイ情報を取得できること" do
+      
+      it "既知の端末のとき" do           
+        @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                         'HTTP_USER_AGENT' => "DoCoMo/2.0 SH02A(c100;TB;W30H20)")
+        @mobile = Rack::Ketai::Carrier::Docomo.new(@env)
+        display = @mobile.display
+        display.should_not be_nil
+        display.colors.should == 16777216
+        display.width.should == 240
+        display.height.should == 320
+      end
+
+      it "未知の端末のとき" do 
+        @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                         'HTTP_USER_AGENT' => 'DoCoMo/2.0 XX01(c100;TB;W30H20)')
+        @mobile = Rack::Ketai::Carrier::Docomo.new(@env)
+        display = @mobile.display
+        display.should_not be_nil
+        display.colors.should be_nil
+        display.width.should be_nil
+        display.height.should be_nil
+      end
+
+    end
+
   end
 
   describe "mova端末で" do
@@ -193,6 +226,39 @@ describe "Rack::Ketai::Carrier::Docomo" do
       it "#ident はiモードIDを返すこと" do
         @mobile.ident.should == '0123abC'
       end
+    end
+
+    it "#name で機種名を取得できること" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => "DoCoMo/1.0/SO502i")
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.name.should == 'SO502i'
+    end
+    
+    describe "ディスプレイ情報を取得できること" do
+      
+      it "既知の端末のとき" do
+        @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                         'HTTP_USER_AGENT' => "DoCoMo/1.0/SO502i")
+        @mobile = Rack::Ketai::Carrier::Docomo.new(@env)
+        display = @mobile.display
+        display.should_not be_nil
+        display.colors.should == 4
+        display.width.should == 120
+        display.height.should == 120
+      end
+
+      it "未知の端末のとき" do 
+        @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                         'HTTP_USER_AGENT' => 'DoCoMo/1.0/X000i')
+        @mobile = Rack::Ketai::Carrier::Docomo.new(@env)
+        display = @mobile.display
+        display.should_not be_nil
+        display.colors.should be_nil
+        display.width.should be_nil
+        display.height.should be_nil
+      end
+
     end
 
   end

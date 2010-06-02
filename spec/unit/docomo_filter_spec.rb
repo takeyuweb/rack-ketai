@@ -49,6 +49,18 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
     status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, ['ラブホテル[e:4B8]'])
     
     body[0].should == resdata
+    
+  end
+
+  it "Content-typeが指定なし,text/html, application/xhtml+xml 以外の時はフィルタを適用しないこと" do
+    Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.should_not be_empty
+    Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.each do |emoji, emojiid|
+      internaldata = '今日はいい[e:'+format("%03X", emojiid)+']ですね。'
+      %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg).each do |contenttype|
+        status, headers, body = @filter.outbound(200, { "Content-Type" => contenttype }, [internaldata])
+        body[0].should == internaldata
+      end
+    end
   end
 
   it "データ中に絵文字ID＝絵文字IDだが絵文字!=絵文字IDのIDが含まれているとき、正しく逆変換できること" do

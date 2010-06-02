@@ -5,13 +5,15 @@ require 'scanf'
 module Rack::Ketai::Carrier
   class Softbank < Abstract
     autoload :CIDRS, 'rack/ketai/carrier/cidrs/softbank'
+    autoload :SPECS, 'rack/ketai/carrier/specs/softbank'
     
     # Semulator はウェブコンテンツビューアのUA
     USER_AGENT_REGEXP = /^(?:Vodafone|SoftBank|Semulator)/
 
     class Filter < ::Rack::Ketai::Carrier::Abstract::Filter
-      
-      def inbound(env)
+
+      private
+      def to_internal(env)
         # softbank UTF-8バイナリ(Unicode) -> 絵文字ID表記
         request = Rack::Request.new(env)
         
@@ -36,7 +38,7 @@ module Rack::Ketai::Carrier
         super(request.env)
       end
       
-      def outbound(status, headers, body)
+      def to_external(status, headers, body)
         status, headers, body = super
         return [status, headers, body] unless body[0]
         
@@ -90,6 +92,38 @@ module Rack::Ketai::Carrier
     def deviceid
       @env['HTTP_USER_AGENT'].to_s =~ /\/SN(\w+) /
       $1
+    end
+
+    def name
+      return @name if @name
+      @name = @env['HTTP_X_JPHONE_MSNAME']
+      @name ||= @env['HTTP_USER_AGENT'].split(/\//)[2] # x-jphone-msname が無いときはUAから
+    end
+
+    def display
+      return @display if @display
+      width = height = colors = nil
+      # HTTP_X_JPHONE_DISPLAY 480*854
+      # HTTP_X_S_DISPLAY_INFO 480*854/30*23/TB
+      if @env['HTTP_X_JPHONE_DISPLAY'].to_s =~ /^(\d+)\*(\d+)/ ||
+          @env['HTTP_X_S_DISPLAY_INFO'].to_s =~ /^(\d+)\*(\d+)/
+        width = $1.to_i
+        height = $2.to_i
+      end
+      width ||= spec[5]
+      height ||= spec[6]
+      
+      colors = @env['HTTP_X_JPHONE_COLOR'] =~ /^C(\d+)/ && $1.to_i
+      colors ||= spec[7]
+
+      @display = Rack::Ketai::Display.new(:colors => colors,
+                                          :width => width,
+                                          :height => height)
+    end
+
+    private
+    def spec
+      @spec = SPECS[name] || []
     end
 
   end

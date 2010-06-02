@@ -5,12 +5,14 @@ require 'scanf'
 module Rack::Ketai::Carrier
   class Docomo < Abstract
     autoload :CIDRS, 'rack/ketai/carrier/cidrs/docomo'
+    autoload :SPECS, 'rack/ketai/carrier/specs/docomo'
     
     USER_AGENT_REGEXP = /^DoCoMo/
 
     class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter
     
-      def inbound(env)
+      private
+      def to_internal(env)
         # ドコモSJISバイナリ -> 絵文字ID表記
         request = Rack::Request.new(env)
         
@@ -29,7 +31,7 @@ module Rack::Ketai::Carrier
         super(request.env)
       end
       
-      def outbound(status, headers, body)
+      def to_external(status, headers, body)
         status, headers, body = super
         
         return [status, headers, body] unless body[0]
@@ -57,9 +59,8 @@ module Rack::Ketai::Carrier
         [status, headers, body]
       end
       
-      private
       # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
-    # 複数の絵文字の組み合わせのものを前におくことで
+      # 複数の絵文字の組み合わせのものを前におくことで
       # そっちを優先的にマッチさせる
       def sjis_regexp
         @sjis_regexp if @sjis_regexp
@@ -98,8 +99,34 @@ module Rack::Ketai::Carrier
     # iモードIDかFOMAカード個体識別子を返す
     # iモードIDの方が優先度が高い
     def subscriberid
-      @env['HTTP_X_DCMGUID'] =~ /([0-9A-Za-z]{7})/ || @env['HTTP_USER_AGENT'] =~ /icc([0-9a-zA-Z]{20})\)/
-      $1
+      guid || icc
+    end
+
+    # FOMAカード個体識別子
+    def icc
+      @icc ||= @env['HTTP_USER_AGENT'] =~ /icc([0-9a-zA-Z]{20})\)/ && $1
+    end
+
+    # iモードID
+    def guid
+      @guid ||= @env['HTTP_X_DCMGUID'] =~ /([0-9A-Za-z]{7})/ && $1
+    end
+
+    # 機種名
+    def name
+      @name ||= @env['HTTP_USER_AGENT'].split(/[\/\s\(\)]+/)[2]
+    end
+
+    # ディスプレイ情報
+    def display
+      @display ||= Rack::Ketai::Display.new(:colors => spec[7],
+                                            :width => spec[5],
+                                            :height => spec[6])
+    end
+
+    private
+    def spec
+      @spec = SPECS[name] || []
     end
 
   end

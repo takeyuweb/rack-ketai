@@ -79,6 +79,19 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "外部フィルタを適用す
     body[0].should == resdata
   end
 
+  it "Content-typeが指定なし,text/html, application/xhtml+xml 以外の時はフィルタを適用しないこと" do
+    Rack::Ketai::Carrier::Softbank::Filter::WEBCODE_TO_EMOJI.should_not be_empty
+    Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID.should_not be_empty
+    Rack::Ketai::Carrier::Softbank::Filter::WEBCODE_TO_EMOJI.each do |webcode, emoji|
+      emojiid = Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID[emoji]
+      internaldata = '今日はいい[e:'+format("%03X", emojiid)+']ですね。'
+      %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg).each do |contenttype|
+        status, headers, body = @filter.outbound(200, { "Content-Type" => contenttype }, [internaldata])
+        body[0].should == internaldata
+      end
+    end
+  end
+
   it "データ中に絵文字ID＝絵文字IDだが絵文字≠絵文字IDのIDが含まれているとき、正しく逆変換できること" do
     emoji = [0xF649].pack('n')
     resdata = "たとえば\x1B$P*\x0F「e-33E RELIEVED FACE」とか。"

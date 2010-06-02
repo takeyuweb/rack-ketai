@@ -10,14 +10,15 @@ module Rack::Ketai::Carrier
       INSIDE_INPUT_TAG = Regexp.new('(<input\s.*?\svalue=")(.*?)(".*?>)').freeze
       INSIDE_TEXTAREA_TAG = Regexp.new('(<textarea\s.*?>)(.*?)(</textarea>)', Regexp::MULTILINE).freeze
 
-      def inbound(env)
+      private
+      def to_internal(env)
         super(env)
       end
 
       # emoji4unicodeのIDからimgタグに変換
       # ただし、content-type がhtmlでないときおよび、
       # input内、textarea内では変換しない
-      def outbound(status, headers, body)
+      def to_external(status, headers, body)
         return [status, headers, body] unless body[0] && !@options[:emoticons_path].to_s.empty? && (headers['Content-Type'].to_s.empty? || headers['Content-Type'].to_s =~ /html/)
 
         emoticons_path = @options[:emoticons_path]

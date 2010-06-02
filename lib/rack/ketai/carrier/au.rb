@@ -6,12 +6,14 @@ module Rack
     module Carrier
       class Au < Abstract
         autoload :CIDRS, 'rack/ketai/carrier/cidrs/au'
+        autoload :SPECS, 'rack/ketai/carrier/specs/au'
         
         USER_AGENT_REGEXP = /^(?:KDDI|UP.Browser\/.+?)-(.+?) /
   
         class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter
-      
-          def inbound(env)
+
+          private
+          def to_internal(env)
             # au SJISバイナリ -> 絵文字ID表記
             request = Rack::Request.new(env)
             
@@ -30,7 +32,7 @@ module Rack
             super(request.env)
           end
           
-          def outbound(status, headers, body)
+          def to_external(status, headers, body)
             status, headers, body = super
             
             return [status, headers, body] unless body[0]
@@ -56,7 +58,6 @@ module Rack
             [status, headers, body]
           end
           
-          private
           # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
           # 複数の絵文字の組み合わせのものを前におくことで
           # そっちを優先的にマッチさせる
@@ -84,8 +85,39 @@ module Rack
         end
 
         def subscriberid
-          @env['HTTP_X_UP_SUBNO'].to_s =~ /^(\d{14}_\w{2}.ezweb.ne.jp)$/
-          $1
+          ezno
+        end
+
+        def ezno
+          @ezno ||= @env['HTTP_X_UP_SUBNO'].to_s =~ /^(\w{14}_\w{2}\.ezweb\.ne\.jp)$/ && $1
+        end
+
+        def name
+          # UAの最初の - の後ろが略称
+          @name ||= @env['HTTP_USER_AGENT'] =~ /^[^\-]+\-(\w+)/ && $1
+        end
+
+        def display
+          return @display if @display
+          width = height = colors = nil
+          if @env['HTTP_X_UP_DEVCAP_SCREENPIXELS'].to_s =~ /(\d+),(\d+)/
+            width = $1.to_i
+            height = $2.to_i
+          end
+          width ||= spec[5]
+          height ||= spec[6]
+          
+          color_depth = (@env['HTTP_X_UP_DEVCAP_SCREENDEPTH'].to_s =~ /^(\d+)/ && $1).to_i
+          colors = color_depth > 0 ? 2 ** color_depth : spec[7]
+
+          @display = Rack::Ketai::Display.new(:colors => colors,
+                                              :width => width,
+                                              :height => height)
+        end
+
+        private
+        def spec
+          @spec ||= SPECS[name] || []
         end
 
       end

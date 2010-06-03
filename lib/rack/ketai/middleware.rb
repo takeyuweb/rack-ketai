@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 class Rack::Ketai::Middleware
   
   def initialize(app, options)
@@ -15,19 +16,19 @@ class Rack::Ketai::Middleware
   # 携帯端末からのアクセスの場合のみ、
   # env['rack.ketai'] に該当キャリア情報インスタンスをセット
   def apply(env, carrier)
-    env = env.clone
+    request = Rack::Request.new(env)
     if carrier.mobile?
-      env['rack.ketai'] = carrier
+      request.env['rack.ketai'] = carrier
     else
       # 互換性維持のため..
       obj = nil
       def obj.mobile?
         false
       end
-      env['rack.ketai'] = obj      
+      request.env['rack.ketai'] = obj      
     end
 
-    carrier.filtering(env, @options) do |processed_env|
+    carrier.filtering(request.env, @options) do |processed_env|
       @app.call(processed_env)
     end
   end

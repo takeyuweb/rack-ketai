@@ -12,6 +12,13 @@ module Rack::Ketai::Carrier
 
     class Filter < ::Rack::Ketai::Carrier::Abstract::Filter
 
+      # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
+      # 複数の絵文字の組み合わせのものを前におくことで
+      # そっちを優先的にマッチさせる
+      def Filter.emoji_utf8_regexp
+        @emoji_utf8_regexp ||= Regexp.union(*EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |utf8str| Regexp.new(Regexp.escape(utf8str), nil)})
+      end
+
       private
       def to_internal(env)
         # softbank UTF-8バイナリ(Unicode) -> 絵文字ID表記
@@ -27,7 +34,7 @@ module Rack::Ketai::Carrier
             $2.split(//u).collect { |b| WEBCODE_TO_EMOJI[head+b]}.join('')
           end
           # UTF-8バイナリから絵文字IDに
-          value.gsub(emoji_utf8_regexp) do |match|
+          value.gsub(Filter.emoji_utf8_regexp) do |match|
             format("[e:%03X]", EMOJI_TO_EMOJIID[match])
           end
         end
@@ -62,16 +69,6 @@ module Rack::Ketai::Carrier
         
         [status, headers, body]
       end
-      
-      private
-      # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
-      # 複数の絵文字の組み合わせのものを前におくことで
-      # そっちを優先的にマッチさせる
-      def emoji_utf8_regexp
-        @emoji_utf8_regexp if @emoji_utf8_regexp
-        @emoji_utf8_regexp = Regexp.union(*EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |utf8str| Regexp.new(Regexp.escape(utf8str), nil)})
-      end
-      
     end
 
     class << self

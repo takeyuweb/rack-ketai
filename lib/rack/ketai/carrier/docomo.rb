@@ -10,6 +10,20 @@ module Rack::Ketai::Carrier
     USER_AGENT_REGEXP = /^DoCoMo/
 
     class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter
+
+      # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
+      # 複数の絵文字の組み合わせのものを前におくことで
+      # そっちを優先的にマッチさせる
+      def Filter.sjis_regexp
+        @sjis_regexp ||=
+          if RUBY_VERSION >= '1.9.1'
+            codes = EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.escape(sjis)}
+            Regexp.new(codes.join('|'), nil)
+          else
+            codes = EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.escape(sjis, 's') }
+            Regexp.new(codes.join('|'), nil, 's')
+          end
+      end
     
       private
       def to_internal(env)
@@ -20,7 +34,7 @@ module Rack::Ketai::Carrier
         
         converter = lambda do |value|
           value.force_encoding('Shift_JIS') if value.respond_to?(:force_encoding)
-          value.gsub(sjis_regexp) do |match|
+          value.gsub(Filter.sjis_regexp) do |match|
             format("[e:%03X]", EMOJI_TO_EMOJIID[match])
           end
         end
@@ -58,22 +72,8 @@ module Rack::Ketai::Carrier
 
         [status, headers, body]
       end
-      
-      # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
-      # 複数の絵文字の組み合わせのものを前におくことで
-      # そっちを優先的にマッチさせる
-      def sjis_regexp
-        @sjis_regexp if @sjis_regexp
-        @sjis_regexp = if RUBY_VERSION >= '1.9.1'
-                         codes = EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.escape(sjis)}
-                         Regexp.new(codes.join('|'), nil)
-                       else
-                         codes = EMOJI_TO_EMOJIID.keys.sort_by{ |codes| - codes.size }.collect{ |sjis| Regexp.escape(sjis, 's') }
-                         Regexp.new(codes.join('|'), nil, 's')
-                       end
-      end
     end
-
+      
     class << self
       def filters
         super | [Rack::Ketai::Carrier::Docomo::Filter]

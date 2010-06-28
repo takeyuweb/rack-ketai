@@ -118,6 +118,14 @@ module Rack::Ketai::Carrier
                                           :height => height)
     end
 
+    def supports_cookie?
+      true
+    end
+
+    def cache_size
+      @cache_size ||= ((val = spec[8].to_i) >= 200 ? val : 300) * 1000
+    end
+
     private
     def spec
       @spec = SPECS[name] || []

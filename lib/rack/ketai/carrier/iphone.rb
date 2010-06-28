@@ -8,5 +8,9 @@ module Rack::Ketai::Carrier
       true
     end
 
+    def supports_cookie?
+      true
+    end
+    
   end
 end

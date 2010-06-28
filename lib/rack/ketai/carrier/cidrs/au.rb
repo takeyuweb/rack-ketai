@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
-# 2010.4.19時点
+# 2010.6.22時点
 
 Rack::Ketai::Carrier::Au::CIDRS = %w(
 210.230.128.224/28
@@ -28,4 +28,5 @@ Rack::Ketai::Carrier::Au::CIDRS = %w(
 111.86.141.64/26
 111.86.141.128/26
 111.86.141.192/26
+118.159.133.19/26
 ).collect{ |cidr| IPAddr.new(cidr) }

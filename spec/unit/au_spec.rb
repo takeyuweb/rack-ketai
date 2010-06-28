@@ -36,10 +36,30 @@ describe "Rack::Ketai::Carrier::Au" do
       it "#name で機種名を取得できること" do
         @mobile.name.should == 'SA31'
       end
+
+    end
+
+    describe "#cache_size でキャッシュ容量を取得するとき" do
+
+      it "環境変数を使用すること" do
+        env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                        'HTTP_USER_AGENT' => 'KDDI-HI3B UP.Browser/6.2.0.13.2 (GUI) MMP/2.0',
+                                        'HTTP_X_UP_DEVCAP_MAX_PDU' => '131072')
+        mobile = Rack::Ketai::Carrier::Au.new(env)
+        mobile.cache_size.should == 131072
+      end
+
+      # 
+      it "環境変数で取得できない古い機種のときは8220Byteにしとく（適当）" do
+        env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                        'HTTP_USER_AGENT' => 'UP.Browser/3.04-SYT4 UP.Link/3.4.5.6')
+        mobile = Rack::Ketai::Carrier::Au.new(env)
+        mobile.cache_size.should == 8220
+      end
       
     end
 
-    describe "ディスプレイ情報を取得できること" do
+    describe "ディスプレイ情報を取得するとき" do
       
       describe "既知の端末のとき" do 
 
@@ -115,6 +135,103 @@ describe "Rack::Ketai::Carrier::Au" do
 
       it "#ident は nil を返すこと" do
         @mobile.ident.should be_nil
+      end
+    end
+
+  end
+
+  describe "#supports_cookie? を使うとき" do
+
+    # Au のCookie対応状況
+    # 全機種対応（GW側で保持）
+    # SSL接続時はWAP2.0ブラウザ搭載端末でのみ端末に保持したCookieを送出
+    # http://www.au.kddi.com/ezfactory/tec/spec/cookie.html
+
+    it "WAP1.0端末（HTTP）のとき true を返すこと" do
+      {
+        'http://hoge.com/dummy' => {
+          'HTTP_USER_AGENT' => 'UP.Browser/3.04-KCTE UP.Link/3.4.5.9'
+        },
+        'http://hoge.com/dummy' => {
+          'HTTP_USER_AGENT' => 'UP.Browser/3.04-KCTE UP.Link/3.4.5.9',
+          'HTTPS' => 'OFF'
+        },
+        'http://hoge.com/dummy' => { 
+          'HTTP_USER_AGENT' => 'UP.Browser/3.04-KCTE UP.Link/3.4.5.9',
+          'X_FORWARDED_PROTO' => 'http'
+        }
+      }.each do |url, opt|
+        env = Rack::MockRequest.env_for(url, opt)
+        mobile = Rack::Ketai::Carrier::Au.new(env)
+        mobile.should be_respond_to(:supports_cookie?)
+        mobile.should be_supports_cookie
+      end
+      
+    end
+
+    it "WAP1.0端末（HTTPS）のとき false を返すこと" do
+      {
+       'https://hoge.com/dummy' => {
+         'HTTP_USER_AGENT' => 'UP.Browser/3.04-KCTE UP.Link/3.4.5.9',
+         'HTTPS' => 'on'
+       },
+       'https://hoge.com/dummy' => {
+          'HTTP_USER_AGENT' => 'UP.Browser/3.04-KCTE UP.Link/3.4.5.9',
+          'HTTPS' => 'ON'
+        },
+        'http://hoge.com/dummy' => {
+         'HTTP_USER_AGENT' => 'UP.Browser/3.04-KCTE UP.Link/3.4.5.9',
+         'X_FORWARDED_PROTO' => 'https' # RAILS的 リバースプロキシのバックエンドでHTTPSを判断する方法
+       }
+      }.each do |url, opt|
+        env = Rack::MockRequest.env_for(url, opt)
+        mobile = Rack::Ketai::Carrier::Au.new(env)
+        mobile.should be_respond_to(:supports_cookie?)
+        mobile.should_not be_supports_cookie
+      end
+    end
+
+    it "WAP2.0端末（HTTP）のとき true を返すこと" do
+      {
+        'http://hoge.com/dummy' => {
+          'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0'
+        },
+        'http://hoge.com/dummy' => {
+          'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0',
+          'HTTPS' => 'OFF'
+        },
+        'http://hoge.com/dummy' => { 
+          'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0',
+          'X_FORWARDED_PROTO' => 'http'
+        }
+      }.each do |url, opt|
+        env = Rack::MockRequest.env_for(url, opt)
+        mobile = Rack::Ketai::Carrier::Au.new(env)
+        mobile.should be_respond_to(:supports_cookie?)
+        mobile.should be_supports_cookie
+      end
+      
+    end
+
+    it "WAP2.0端末（HTTPS）のとき true を返すこと" do
+      {
+       'https://hoge.com/dummy' => {
+         'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0',
+         'HTTPS' => 'on'
+       },
+       'https://hoge.com/dummy' => {
+          'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0',
+          'HTTPS' => 'ON'
+        },
+        'http://hoge.com/dummy' => {
+         'HTTP_USER_AGENT' => 'KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0',
+         'X_FORWARDED_PROTO' => 'https' # RAILS的 リバースプロキシのバックエンドでHTTPSを判断する方法
+       }
+      }.each do |url, opt|
+        env = Rack::MockRequest.env_for(url, opt)
+        mobile = Rack::Ketai::Carrier::Au.new(env)
+        mobile.should be_respond_to(:supports_cookie?)
+        mobile.should be_supports_cookie
       end
     end
 

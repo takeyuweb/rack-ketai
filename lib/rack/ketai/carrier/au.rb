@@ -114,9 +114,32 @@ module Rack
                                               :height => height)
         end
 
+        # Cookie対応
+        # 全機種対応（GW側で保持）
+        # SSL接続時はWAP2.0ブラウザ搭載端末でのみ端末に保持したCookieを送出
+        # http://www.au.kddi.com/ezfactory/tec/spec/cookie.html
+        def supports_cookie?
+          is_wap1? && use_ssl? ? false : true
+        end
+
+        # キャッシュサイズ
+        # HTTP_X_UP_DEVCAP_MAX_PDU に入ってくる…が一部古い携帯は入らないらしい
+        def cache_size
+          @cache_size ||= (val = @env['HTTP_X_UP_DEVCAP_MAX_PDU'].to_i) > 0 ? val : 8220
+        end
+
         private
         def spec
           @spec ||= SPECS[name] || []
+        end
+
+        def use_ssl?
+          @env['HTTPS'].to_s.downcase == 'on' || @env['X_FORWARDED_PROTO'] == 'https'
+        end
+
+        # WAP1ブラウザではKDDIからはじまらない
+        def is_wap1?
+          @env['HTTP_USER_AGENT'] !~ /^KDDI\-/
         end
 
       end

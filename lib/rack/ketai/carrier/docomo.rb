@@ -124,6 +124,26 @@ module Rack::Ketai::Carrier
                                             :height => spec[6])
     end
 
+    # キャッシュサイズ（Byte）
+    # 不明なら最低の5KBを返す
+    def cache_size
+      return @cache_size if @cache_size
+      @cache_size ||= if @env['HTTP_USER_AGENT'] =~ /DoCoMo\/\d\.\d\/[^\/]+\/c(\d+)/ ||
+                          @env['HTTP_USER_AGENT'] =~ /DoCoMo\/\d\.\d[^\(]+\(c(\d+)/
+                        $1.to_i * 1000
+                      else
+                        5000
+                      end
+    end
+    
+    # Cookie対応
+    # iモードブラウザ2.0 なら Cookie対応
+    # ただしiモードブラウザ2.0かどうかはキャッシュサイズ(500K)から判断するしかない
+    # キャッシュサイズが取得できなかったらやむを得ずデータ参照（信頼性低い）
+    def supports_cookie?
+      cache_size >= 500000 || (spec[8].to_i >= 500 || spec[20].to_i > 0)
+    end
+
     private
     def spec
       @spec = SPECS[name] || []

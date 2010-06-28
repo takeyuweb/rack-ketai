@@ -164,4 +164,37 @@ describe "Rack::Ketai::Carrier::Softbank" do
 
   end
 
+  describe "#cache_size でキャッシュ容量を取得するとき" do
+    
+    it "データにないときは300KBに設定でOK" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                      'HTTP_USER_AGENT' => 'SoftBank/1.0/923SH/SHJ001/SN*************** Browser/NetFront/3.4 Profile/MIDP-2.0 Configuration/CLDC-1.1')
+      mobile = Rack::Ketai::Carrier::Softbank.new(env)
+      mobile.name.should == '923SH'
+      mobile.cache_size.should == 300000
+    end
+
+    it "仕方ないので、データにあればそれを信用" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                      'HTTP_USER_AGENT' => 'SoftBank/2.0/944SH/SHJ001/SN*************** Browser/NetFront/3.5 Profile/MIDP-2.0 Configuration/CLDC-1.1')
+      mobile = Rack::Ketai::Carrier::Softbank.new(env)
+      mobile.name.should == '944SH'
+      mobile.cache_size.should == 500000
+    end
+    
+  end
+  
+  describe "#supports_cookie? を使うとき" do
+    # Softbank のCookie対応状況
+    # W型、3GC型機種のみ対応…C型、P型もサービス終了につき、
+    # 現状はすべて対応のはず
+    it "#supports_cookie? は true を返す" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                      'HTTP_USER_AGENT' => 'SoftBank/1.0/930SH/SHJ001[/Serial] Browser/NetFront/3.4 Profile/MIDP-2.0 Configuration/CLDC-1.1')
+      mobile = Rack::Ketai::Carrier::Softbank.new(env)
+      mobile.should be_respond_to(:supports_cookie?)
+      mobile.should be_supports_cookie
+    end
+  end
+
 end

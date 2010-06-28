@@ -129,6 +129,16 @@ module Rack::Ketai::Carrier
       self.class.valid_ip? @env['HTTP_X_FORWARDED_FOR'] || @env['REMOTE_ADDR']
     end
     alias :valid_ip? :valid_addr?
+
+    # キャッシュサイズ
+    def cache_size
+      nil
+    end
+
+    # Cookieのサポート
+    def supports_cookie?
+      false
+    end
   end
 end
 

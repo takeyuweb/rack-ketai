@@ -109,6 +109,22 @@ describe "Rack::Ketai::Carrier::Docomo" do
       mobile.name.should == 'SH02A'
     end
 
+    it "#cache_size でキャッシュサイズが取得できること" do
+      {
+        'DoCoMo/2.0 P903i' => 5 * 1000,
+        'DoCoMo/2.0 F900i(c100;TJ)' => 100 * 1000,
+        'DoCoMo/2.0 F900i(c100;TC;W22H12)' => 100 * 1000,
+        'DoCoMo/2.0 P903i(c100;serXXXXXXXXXXXXXXX; iccxxxxxxxxxxxxxxxxxxxx)' => 100 * 1000,
+        'DoCoMo/2.0 N06A3(c500;TB;W24H16)' => 500 * 1000,
+        'DoCoMo/2.0 XXXX(c500;TB;W24H16)' => 500 * 1000  # 未知の端末でも
+      }.each do |ua, cache_size|
+        env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                      'HTTP_USER_AGENT' => ua)
+        mobile = Rack::Ketai::Carrier::Docomo.new(env)
+        mobile.cache_size.should == cache_size
+      end
+    end
+
     describe "ディスプレイ情報を取得できること" do
       
       it "既知の端末のとき" do           
@@ -235,6 +251,20 @@ describe "Rack::Ketai::Carrier::Docomo" do
       mobile.name.should == 'SO502i'
     end
     
+    it "#cache_size でキャッシュサイズが取得できること" do
+      {
+        'DoCoMo/1.0/F502i' => 5 * 1000,
+        'DoCoMo/1.0/D503i/c10' => 10 * 1000,
+        'DoCoMo/1.0/N504i/c10/TB' => 10 * 1000,
+        'DoCoMo/1.0/SO506iS/c20/TB/W20H10' => 20 * 1000,
+      }.each do |ua, cache_size|
+        env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                      'HTTP_USER_AGENT' => ua)
+        mobile = Rack::Ketai::Carrier::Docomo.new(env)
+        mobile.cache_size.should == cache_size
+      end
+    end
+
     describe "ディスプレイ情報を取得できること" do
       
       it "既知の端末のとき" do
@@ -259,6 +289,54 @@ describe "Rack::Ketai::Carrier::Docomo" do
         display.height.should be_nil
       end
 
+    end
+
+  end
+
+  describe "#supports_cookie? を使うとき" do
+
+    # iモードブラウザ 2.0から対応
+    # といっても、iモードブラウザ 2.0かどうか判断するには
+    # キャッシュサイズで調べるしかない（c500）
+    # キャッシュが不明な場合は端末データベースから判断
+    # （ただし信頼性が低いので最後の手段）
+
+    it "Cookie対応機種なら true を返すこと" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'DoCoMo/2.0 F02B')
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.should be_respond_to(:supports_cookie?)
+      mobile.should be_supports_cookie
+    end
+    
+    it "Cookie未対応機種なら false を返すこと" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'DoCoMo/2.0 L06A')
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.should be_respond_to(:supports_cookie?)
+      mobile.should_not be_supports_cookie
+    end
+
+    it "不明な機種でもキャッシュサイズがわかればそれを基に判断すること" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'DoCoMo/2.0 X00HOGE3(c500;TB;W24H15)')
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.should be_respond_to(:supports_cookie?)
+      mobile.should be_supports_cookie
+
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'DoCoMo/2.0 X00HOGE3(c100;TB;W24H15)')
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.should be_respond_to(:supports_cookie?)
+      mobile.should_not be_supports_cookie
+    end
+
+    it "不明な機種でキャッシュサイズもわからないなら false を返すこと" do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'DoCoMo/2.0 X00HOGE')
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.should be_respond_to(:supports_cookie?)
+      mobile.should_not be_supports_cookie
     end
 
   end

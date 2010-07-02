@@ -71,5 +71,25 @@ describe Rack::Ketai::Carrier::Au::Filter, "外部エンコーディングに変
     body[0].should == resdata
   end
   
+  it "Content-typeを適切に書き換えられること" do
+    [
+     ['text/html', 'text/html; charset=shift_jis'],
+     ['text/html; charset=utf-8', 'text/html; charset=shift_jis'],
+     ['text/html;charset=utf-8', 'text/html;charset=shift_jis'],
+     ['application/xhtml+xml', 'application/xhtml+xml; charset=shift_jis'],
+     ['application/xhtml+xml; charset=utf-8', 'application/xhtml+xml; charset=shift_jis'],
+     ['application/xhtml+xml;charset=utf-8', 'application/xhtml+xml;charset=shift_jis'],
+     ['text/javascript', 'text/javascript'],
+     ['text/json', 'text/json'],
+     ['application/json', 'application/json'],
+     ['text/javascript+json', 'text/javascript+json'],
+     ['image/jpeg', 'image/jpeg'],
+     ['application/octet-stream', 'application/octet-stream'],
+    ].each do |content_type, valid_content_type|
+      status, headers, body = @filter.outbound(200, { "Content-Type" => content_type}, ['適当な本文'])
+      headers['Content-Type'].should == valid_content_type
+    end
+  end
+
 end
 

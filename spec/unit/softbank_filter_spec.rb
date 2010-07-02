@@ -108,5 +108,25 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "外部フィルタを適用す
     
     body[0].should == resdata
   end
+
+  it "Content-typeを適切に書き換えられること" do
+    [
+     ['text/html', 'text/html; charset=utf-8'],
+     ['text/html; charset=utf-8', 'text/html; charset=utf-8'],
+     ['text/html;charset=utf-8', 'text/html;charset=utf-8'],
+     ['application/xhtml+xml', 'application/xhtml+xml; charset=utf-8'],
+     ['application/xhtml+xml; charset=utf-8', 'application/xhtml+xml; charset=utf-8'],
+     ['application/xhtml+xml;charset=utf-8', 'application/xhtml+xml;charset=utf-8'],
+     ['text/javascript', 'text/javascript'],
+     ['text/json', 'text/json'],
+     ['application/json', 'application/json'],
+     ['text/javascript+json', 'text/javascript+json'],
+     ['image/jpeg', 'image/jpeg'],
+     ['application/octet-stream', 'application/octet-stream'],
+    ].each do |content_type, valid_content_type|
+      status, headers, body = @filter.outbound(200, { "Content-Type" => content_type}, ['適当な本文'])
+      headers['Content-Type'].should == valid_content_type
+    end
+  end
   
 end

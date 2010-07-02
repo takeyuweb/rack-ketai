@@ -164,7 +164,7 @@ class Rack::Ketai::Carrier::Abstract
     
     def to_external(status, headers, body)
       case headers['Content-Type']
-      when /charset=(\w+)/i
+      when /charset=(\w|\-)+/i
         headers['Content-Type'].sub!(/charset=(\w|\-)+/, 'charset=utf-8')
       else
         headers['Content-Type'] << "; charset=utf-8"
@@ -237,10 +237,10 @@ class Rack::Ketai::Carrier::Abstract
       else
         body = NKF.nkf('-m0 -x -Ws', body)
       end
-      
+
       case headers['Content-Type']
-      when /charset=(\w+)/i
-        headers['Content-Type'].sub!(/charset=\w+/, 'charset=shift_jis')
+      when /charset=(\w|\-)+/i
+        headers['Content-Type'].sub!(/charset=(\w|\-)+/, 'charset=shift_jis')
       else
         headers['Content-Type'] << "; charset=shift_jis"
       end

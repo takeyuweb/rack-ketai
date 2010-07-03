@@ -163,11 +163,13 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def to_external(status, headers, body)
-      case headers['Content-Type']
-      when /charset=(\w|\-)+/i
-        headers['Content-Type'].sub!(/charset=(\w|\-)+/, 'charset=utf-8')
-      else
-        headers['Content-Type'] << "; charset=utf-8"
+      if headers['Content-Type']
+        case headers['Content-Type']
+        when /charset=[\w\-]+/i
+          headers['Content-Type'].sub!(/charset=[\w\-]+/, 'charset=utf-8')
+        else
+          headers['Content-Type'] << "; charset=utf-8"
+        end
       end
       [status, headers, body]
     end
@@ -238,13 +240,15 @@ class Rack::Ketai::Carrier::Abstract
         body = NKF.nkf('-m0 -x -Ws', body)
       end
 
-      case headers['Content-Type']
-      when /charset=(\w|\-)+/i
-        headers['Content-Type'].sub!(/charset=(\w|\-)+/, 'charset=shift_jis')
-      else
-        headers['Content-Type'] << "; charset=shift_jis"
+      if headers['Content-Type']
+        case headers['Content-Type']
+        when /charset=[\w\-]+/i
+          headers['Content-Type'].sub!(/charset=[\w\-]+/, 'charset=shift_jis')
+        else
+          headers['Content-Type'] << "; charset=shift_jis"
+        end
       end
-      
+
       content = (body.is_a?(Array) ? body[0] : body).to_s
       headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
     

@@ -83,6 +83,7 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
 
   it "Content-typeを適切に書き換えられること" do
     [
+     [nil, nil],
      ['text/html', 'application/xhtml+xml; charset=shift_jis'],
      ['text/html; charset=utf-8', 'application/xhtml+xml; charset=shift_jis'],
      ['text/html;charset=utf-8', 'application/xhtml+xml;charset=shift_jis'],

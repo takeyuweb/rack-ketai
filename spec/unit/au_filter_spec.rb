@@ -73,6 +73,7 @@ describe Rack::Ketai::Carrier::Au::Filter, "外部エンコーディングに変
   
   it "Content-typeを適切に書き換えられること" do
     [
+     [nil, nil],
      ['text/html', 'text/html; charset=shift_jis'],
      ['text/html; charset=utf-8', 'text/html; charset=shift_jis'],
      ['text/html;charset=utf-8', 'text/html;charset=shift_jis'],

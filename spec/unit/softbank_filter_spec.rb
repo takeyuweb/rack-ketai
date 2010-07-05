@@ -111,6 +111,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "外部フィルタを適用す
 
   it "Content-typeを適切に書き換えられること" do
     [
+     [nil, nil],
      ['text/html', 'text/html; charset=utf-8'],
      ['text/html; charset=utf-8', 'text/html; charset=utf-8'],
      ['text/html;charset=utf-8', 'text/html;charset=utf-8'],

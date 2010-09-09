@@ -7,18 +7,16 @@ class SpecRunner < Test::Unit::TestCase
       require 'spec'
     rescue LoadError
       retry if require "rubygems"
-      puts "All tests are skipped."
+      puts "All tests are skipped.(Please `gem install rspec`)"
       return
     end
   end
 
   def test_spec
-     return unless load_spec
-    require File.join(File.dirname(__FILE__),
-                      '../spec/spec_helper.rb')
+    return unless load_spec
+    require File.expand_path(File.join(File.dirname(__FILE__), '../spec/spec_helper.rb'))
 
-    argv = Dir.glob(File.join(File.dirname(__FILE__),
-                              '../spec/**/*_spec.rb'))
+    argv = Dir.glob(File.expand_path File.join(File.dirname(__FILE__), '../spec/**/*_spec.rb'))
     argv.unshift '-fs'
 
     unless Spec::Runner::CommandLine.run(Spec::Runner::OptionParser.parse(argv, STDOUT, STDERR))

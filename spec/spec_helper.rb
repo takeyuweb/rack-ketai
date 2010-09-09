@@ -6,6 +6,6 @@ require 'cgi'
 require 'spec/mocks'
 require 'rack/mock'
 
-$LOAD_PATH.unshift File.dirname(File.dirname(__FILE__)) + '/lib'
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '../lib')
 require 'rack/ketai'
 

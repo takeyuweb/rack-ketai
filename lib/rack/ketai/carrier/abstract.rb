@@ -154,6 +154,7 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def outbound(status, headers, body)
+      body = [body].flatten
       apply_outgoing?(status, headers, body) ? to_external(status, headers, body) : [status, headers, body]
     end
 

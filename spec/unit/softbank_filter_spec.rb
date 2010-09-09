@@ -6,6 +6,12 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
   before(:each) do
     @filter = Rack::Ketai::Carrier::Softbank::Filter.new
   end
+
+  # Rails 3.0.0+Ruby1.9.xのとき、bodyにeachの使えないStringが渡されてエラーになったので
+  it "bodyにStringを受け取ってもよきにはからってくれること" do
+    status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, 'String')
+    body.should == ['String']
+  end
   
   it "POSTデータ中のUTF-8バイナリの絵文字を絵文字IDに変換すること" do
     Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID.should_not be_empty

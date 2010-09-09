@@ -30,6 +30,12 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
   before(:each) do
     @filter = Rack::Ketai::Carrier::Docomo::Filter.new
   end
+
+  # Rails 3.0.0+Ruby1.9.xのとき、bodyにeachの使えないStringが渡されてエラーになったので
+  it "bodyにStringを受け取ってもよきにはからってくれること" do
+    status, headers, body = @filter.outbound(200, { "Content-Type" => "text/html"}, 'String')
+    body.should == ['String']
+  end
   
   it "データ中の絵文字IDをSJISの絵文字コードに変換すること" do
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.should_not be_empty
@@ -56,7 +62,7 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.should_not be_empty
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.each do |emoji, emojiid|
       internaldata = '今日はいい[e:'+format("%03X", emojiid)+']ですね。'
-      %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg).each do |contenttype|
+      %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg application/x-shockwave-flash text/html).each do |contenttype|
         status, headers, body = @filter.outbound(200, { "Content-Type" => contenttype }, [internaldata])
         body[0].should == internaldata
       end

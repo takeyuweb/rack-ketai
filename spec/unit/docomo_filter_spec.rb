@@ -62,7 +62,7 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "外部エンコーディング�
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.should_not be_empty
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.each do |emoji, emojiid|
       internaldata = '今日はいい[e:'+format("%03X", emojiid)+']ですね。'
-      %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg application/x-shockwave-flash text/html).each do |contenttype|
+      %w(text/plain text/xml text/json application/json text/javascript application/rss+xml image/jpeg application/x-shockwave-flash).each do |contenttype|
         status, headers, body = @filter.outbound(200, { "Content-Type" => contenttype }, [internaldata])
         body[0].should == internaldata
       end

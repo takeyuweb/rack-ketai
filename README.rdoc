@@ -6,6 +6,7 @@
 * 携帯電話キャリア判別
 * 端末名の取得
 * ユーザID、端末IDの取得
+* GPSによる位置情報の取得
 * ディスプレイ情報（サイズ、色数）の取得
 * Cookie使用の可否
 * キャッシュサイズの取得
@@ -60,6 +61,26 @@ JRuby 1.4.0
   ketai.subscriberid  # ユーザID：iモードID or FOMAカード製造番号/EZ番号/x-jphone-uid
   ketai.deviceid      # 端末ID：端末製造番号(DoCoMo)/端末シリアル(SoftbankMobile)
   ketai.ident         # ユーザか端末を識別する情報（ユーザID or 端末製造番号）
+
+=== GPSによる位置情報の取得
+位置情報取得の為のリクエストは各自で行って下さい。
+
+  # 位置情報が送られていない
+  env['rack.ketai'].position # => nil
+
+  # 位置情報を取得
+  position = env['rack.ketai'].position # => #<Rack::Ketai::Position:0xb76bf6a4 @lng=135.693222222222, @lat=35.0098888888889>
+  position.lat # => 35.0098888888889
+  position.lng # => 135.693222222222
+  # 測地系を指定（世界測地系から日本測地系に変換した値を返します）
+  position.lat(:wgs84)   # => 35.0098888888889
+  position.lng(:wgs84)   # => 135.693222222222
+  position.lat(:tokyo97) # => 35.0066762382277
+  position.lng(:tokyo97) # => 135.696079543154
+  # おまけ 度分秒単位で取得
+  Rack::Ketai::Position.d2dms(position.lat) # => [35, 0, 35.35]
+
+測地系の変換には、Yoji Shidara氏が公開しているjpmobileい含まれるdatum_conv.rbを、MIT Licenseに従って利用しています。
 
 === ディスプレイ情報の取得
 環境変数もしくは http://ke-tai.org/ で公開されている携帯端末スペック一覧のデータから縦横ピクセル数及び色数を取得できます。

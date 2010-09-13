@@ -117,6 +117,17 @@ module Rack::Ketai::Carrier
       @name ||= @env['HTTP_USER_AGENT'].split(/[\/\s\(\)]+/)[2]
     end
 
+    # 位置情報
+    # http://www.nttdocomo.co.jp/service/imode/make/content/gps/
+    # 「GPS機能対応iモード端末にて測位した場合、世界測地系となります」とのこと
+    def position
+      lat = request.params['lat']
+      lon = request.params['lon']
+      return nil unless lat && lon
+      
+      @position ||= Rack::Ketai::Position.new(:lat => lat, :lng => lon)
+    end
+
     # ディスプレイ情報
     def display
       @display ||= Rack::Ketai::Display.new(:colors => spec[7],

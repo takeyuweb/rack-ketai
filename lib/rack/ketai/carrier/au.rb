@@ -96,6 +96,37 @@ module Rack
           @name ||= @env['HTTP_USER_AGENT'] =~ /^[^\-]+\-(\w+)/ && $1
         end
 
+        # http://www.au.kddi.com/ezfactory/tec/spec/eznavi.html
+        def position
+          return @position if @position
+          
+          lat, lng = [request.params['lat'], request.params['lon']]
+          return nil unless lat && lng
+
+          case request.params['unit']
+          when '0'
+            # 度分秒単位
+            lat, lng = [Rack::Ketai::Position.dms2d(lat), Rack::Ketai::Position.dms2d(lng)]
+          when '1'
+            # 度単位
+            lat, lng = [lat.to_f, lng.to_f]
+          else
+            return nil
+          end
+
+          case request.params['datum']
+          when '0'
+            # WGS84
+          when '1'
+            # Tokyo97
+            lat, lng = DatumConv.tky2jgd(lat, lng)
+          else
+            return nil
+          end
+
+          @position ||= Rack::Ketai::Position.new(:lat => lat, :lng => lng)
+        end
+
         def display
           return @display if @display
           width = height = colors = nil

@@ -97,6 +97,28 @@ module Rack::Ketai::Carrier
       @name ||= @env['HTTP_USER_AGENT'].split(/\//)[2] # x-jphone-msname が無いときはUAから
     end
 
+    def position
+      return @position if @position
+      
+      return nil unless request.params['pos'].to_s =~ /^(N|S)(\d+\.\d+\.\d+\.\d+)(E|W)(\d+\.\d+\.\d+\.\d+)$/
+
+      lat = $1 == 'S' ? '-'+$2 : $2
+      lng = $3 == 'W' ? '-'+$4 : $4
+      # 度単位に
+      lat, lng = [Rack::Ketai::Position.dms2d(lat), Rack::Ketai::Position.dms2d(lng)]
+      
+      case request.params['geo']
+      when 'wgs84'
+        #
+      when 'tokyo'
+        lat, lng = DatumConv.tky2jgd(lat, lng)
+      else
+        raise "Unsupported datum(#{request.params['geo']})"
+      end
+
+      @position ||= Rack::Ketai::Position.new(:lat => lat, :lng => lng)
+    end
+
     def display
       return @display if @display
       width = height = colors = nil

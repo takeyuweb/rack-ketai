@@ -76,7 +76,11 @@ module Rack::Ketai::Carrier
     def initialize(env)
       @env = env
     end
-    
+  
+    def request
+      @request ||= Rack::Request.new(@env)
+    end
+  
     USER_AGENT_REGEXP = nil
 
     def filtering(env, options = { }, &block)
@@ -116,6 +120,11 @@ module Rack::Ketai::Carrier
 
     # 機種名（略名）
     def name
+      nil
+    end
+
+    # 位置情報
+    def position
       nil
     end
 

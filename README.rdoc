@@ -40,7 +40,7 @@ config/application.rb
 app/controllers/example_controller.rb
   class ExampleController < ApplicationController
     def index
-      render :text => (request.env['rack.ketai'].mobile? "mobile" ? : "PC")
+      render :text => (request.env['rack.ketai'].mobile? ? "mobile" : "PC")
     end
   end
 

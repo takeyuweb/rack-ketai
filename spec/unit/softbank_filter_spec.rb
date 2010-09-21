@@ -131,8 +131,11 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "外部フィルタを適用す
      ['image/jpeg', 'image/jpeg'],
      ['application/octet-stream', 'application/octet-stream'],
     ].each do |content_type, valid_content_type|
+      orig_content_type = content_type == nil ? nil : content_type.clone
       status, headers, body = @filter.outbound(200, { "Content-Type" => content_type}, ['適当な本文'])
       headers['Content-Type'].should == valid_content_type
+      # 元の文字列に直接変更を加えない（Rails3.0でハッシュを使い回してるようだったので）
+      content_type.should == orig_content_type
     end
   end
   

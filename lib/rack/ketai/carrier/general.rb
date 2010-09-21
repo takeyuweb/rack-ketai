@@ -19,11 +19,12 @@ module Rack::Ketai::Carrier
       # ただし、content-type がhtmlでないときおよび、
       # input内、textarea内では変換しない
       def to_external(status, headers, body)
-        return [status, headers, body] unless body[0] && !@options[:emoticons_path].to_s.empty? && (headers['Content-Type'].to_s.empty? || headers['Content-Type'].to_s =~ /html/)
+        return [status, headers, body] unless body && !@options[:emoticons_path].to_s.empty? && (headers['Content-Type'].to_s.empty? || headers['Content-Type'].to_s =~ /html/)
 
         emoticons_path = @options[:emoticons_path]
-
-        body = body.collect do |str|
+        
+        output = ''
+        body.collect do |str|
           # input内・textarea内以外のものだけを置換する良い方法がわからないので、
           # とりあえず、input内、textarea内のものを別なのにしとく
           str = str.gsub(INSIDE_INPUT_TAG) do
@@ -50,13 +51,12 @@ module Rack::Ketai::Carrier
           end
 
           # とりあえず変えておいたものを戻す
-          str.gsub(/\[E:([0-9A-F]{3})\]/){ "[e:#{$1}]" }
+          output << str.gsub(/\[E:([0-9A-F]{3})\]/){ "[e:#{$1}]" }
         end
         
-        content = (body.is_a?(Array) ? body[0] : body).to_s
-        headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
+        headers['Content-Length'] = (output.respond_to?(:bytesize) ? output.bytesize : output.size).to_s if headers.member?('Content-Length')
         
-        [status, headers, body]
+        [status, headers, [output]]
       end
       
     end

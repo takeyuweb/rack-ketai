@@ -88,4 +88,21 @@ describe Rack::Ketai::Carrier::General::EmoticonFilter, "外部フィルタを�
 
   end
 
+  it "Content-typeは触らないこと" do
+    [
+     [nil, nil],
+     ['text/html'],
+     ['application/xhtml+xml'],
+     ['text/javascript'],
+     ['text/json'],
+     ['application/json'],
+     ['text/javascript+json'],
+     ['image/jpeg'],
+     ['application/octet-stream'],
+    ].each do |content_type|
+      status, headers, body = @filter.outbound(200, { "Content-Type" => content_type}, ['適当な本文'])
+      headers['Content-Type'].should == content_type
+    end
+  end
+
 end

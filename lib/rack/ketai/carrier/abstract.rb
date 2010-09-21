@@ -86,8 +86,8 @@ module Rack::Ketai::Carrier
     def filtering(env, options = { }, &block)
       env = options[:disable_filter] ? env : filters(options).inject(env) { |env, filter| filter.inbound(env) }
       ret = block.call(env)
-      ret[2] = ret[2].body if ret[2].is_a?(Rack::Response)
-      options[:disable_filter] ? ret : filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
+      ret = options[:disable_filter] ? ret : filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
+      ret
     end
 
     def filters(options = { })
@@ -163,7 +163,6 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def outbound(status, headers, body)
-      body = [body].flatten
       apply_outgoing?(status, headers, body) ? to_external(status, headers, body) : [status, headers, body]
     end
 
@@ -173,14 +172,6 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def to_external(status, headers, body)
-      if headers['Content-Type']
-        case headers['Content-Type']
-        when /charset=[\w\-]+/i
-          headers['Content-Type'].sub!(/charset=[\w\-]+/, 'charset=utf-8')
-        else
-          headers['Content-Type'] << "; charset=utf-8"
-        end
-      end
       [status, headers, body]
     end
     
@@ -242,27 +233,24 @@ class Rack::Ketai::Carrier::Abstract
     end
     
     def to_external(status, headers, body)
-      if body.is_a?(Array)
-        body = body.collect do |str|
-          NKF.nkf('-m0 -x -Ws', str)
-        end
-      else
-        body = NKF.nkf('-m0 -x -Ws', body)
+      output = ''
+
+      (body.respond_to?(:each) ? body : [body]).each do |str|
+        output << NKF.nkf('-m0 -x -Ws', str)
       end
 
       if headers['Content-Type']
         case headers['Content-Type']
         when /charset=[\w\-]+/i
-          headers['Content-Type'].sub!(/charset=[\w\-]+/, 'charset=shift_jis')
+          headers['Content-Type'] = headers['Content-Type'].sub(/charset=[\w\-]+/, 'charset=shift_jis')
         else
-          headers['Content-Type'] << "; charset=shift_jis"
+          headers['Content-Type'] = headers['Content-Type'] + "; charset=shift_jis"
         end
       end
 
-      content = (body.is_a?(Array) ? body[0] : body).to_s
-      headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
+      headers['Content-Length'] = (output.respond_to?(:bytesize) ? output.bytesize : output.size).to_s if headers.member?('Content-Length')
     
-      [status, headers, body]
+      [status, headers, [output]]
     end
     
   end

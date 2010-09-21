@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rack-ketai}
-  s.version = "0.1.1"
+  s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yuichi Takeuchi"]
-  s.date = %q{2010-09-09}
+  s.date = %q{2010-09-21}
   s.email = %q{info@takeyu-web.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
      "lib/rack/ketai/carrier/specs/softbank.rb",
      "lib/rack/ketai/display.rb",
      "lib/rack/ketai/middleware.rb",
+     "lib/rack/ketai/position.rb",
      "rack-ketai.gemspec",
      "spec/spec_helper.rb",
      "spec/unit/au_filter_spec.rb",
@@ -52,14 +53,18 @@ Gem::Specification.new do |s|
      "spec/unit/docomo_spec.rb",
      "spec/unit/emoticon_filter_spec.rb",
      "spec/unit/filter_spec.rb",
+     "spec/unit/gps_spec.rb",
      "spec/unit/iphone_spec.rb",
      "spec/unit/middleware_spec.rb",
+     "spec/unit/position_spec.rb",
      "spec/unit/softbank_filter_spec.rb",
      "spec/unit/softbank_spec.rb",
      "spec/unit/valid_addr_spec.rb",
      "test/spec_runner.rb",
      "tools/generate_emoji_dic.rb",
-     "tools/update_speclist.rb"
+     "tools/update_speclist.rb",
+     "vendor/datum_conv/MIT-LICENSE",
+     "vendor/datum_conv/lib/datum_conv.rb"
   ]
   s.homepage = %q{http://github.com/take-yu/rack-ketai}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -71,7 +76,9 @@ Gem::Specification.new do |s|
      "spec/unit/middleware_spec.rb",
      "spec/unit/filter_spec.rb",
      "spec/unit/au_filter_spec.rb",
+     "spec/unit/gps_spec.rb",
      "spec/unit/softbank_filter_spec.rb",
+     "spec/unit/position_spec.rb",
      "spec/unit/valid_addr_spec.rb",
      "spec/unit/docomo_spec.rb",
      "spec/unit/display_spec.rb",

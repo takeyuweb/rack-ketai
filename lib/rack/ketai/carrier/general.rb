@@ -26,7 +26,7 @@ module Rack::Ketai::Carrier
         emoticons_path = @options[:emoticons_path]
         
         output = ''
-        body.collect do |str|
+        (body.respond_to?(:each) ? body : [body]).each do |str|
           # input内・textarea内以外のものだけを置換する良い方法がわからないので、
           # とりあえず、input内、textarea内のものを別なのにしとく
           str = str.gsub(INSIDE_INPUT_TAG) do

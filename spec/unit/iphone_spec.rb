@@ -11,6 +11,19 @@ describe "Rack::Ketai::Carrier::IPhone" do
       @mobile = Rack::Ketai::Carrier.load(@env)
     end
 
+    it 'PC向け絵文字フィルタが適用されること' do
+      mock_app = mock('App')
+      mock_app.should_receive(:call).twice do |env|
+        [200, { "Content-Type" => "text/html"}, ["今日は良い天気ですね[e:000]"]]
+      end
+
+      middleware = Rack::Ketai::Middleware.new(mock_app, {})
+      middleware.call(@env)[2].should == ['今日は良い天気ですね[e:000]']
+
+      middleware = Rack::Ketai::Middleware.new(mock_app, { :emoticons_path => '/path-to/emoticons' })
+      middleware.call(@env)[2].should == ['今日は良い天気ですね<img src="/path-to/emoticons/sun.gif" />']
+    end
+
     it 'Rack::Ketai::Carrier::IPhone がセットされること' do
       @mobile.should be_is_a(Rack::Ketai::Carrier::IPhone)
     end
@@ -41,6 +54,19 @@ describe "Rack::Ketai::Carrier::IPhone" do
                                        'HTTP_USER_AGENT' => 'Mozilla/5.0 (iPod; U; CPU like Mac OS X; en) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/3A100a Safari/419.3',
                                        'REMOTE_ADDR' => '126.240.0.41')
       @mobile = Rack::Ketai::Carrier.load(@env)
+    end
+
+    it 'PC向け絵文字フィルタが適用されること' do
+      mock_app = mock('App')
+      mock_app.should_receive(:call).twice do |env|
+        [200, { "Content-Type" => "text/html"}, ["今日は良い天気ですね[e:000]"]]
+      end
+
+      middleware = Rack::Ketai::Middleware.new(mock_app, {})
+      middleware.call(@env)[2].should == ['今日は良い天気ですね[e:000]']
+
+      middleware = Rack::Ketai::Middleware.new(mock_app, { :emoticons_path => '/path-to/emoticons' })
+      middleware.call(@env)[2].should == ['今日は良い天気ですね<img src="/path-to/emoticons/sun.gif" />']
     end
 
     it 'Rack::Ketai::Carrier::IPhone がセットされること' do

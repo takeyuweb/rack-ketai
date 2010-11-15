@@ -11,6 +11,19 @@ describe "Rack::Ketai::Carrier::Android" do
       @mobile = Rack::Ketai::Carrier.load(@env)
     end
 
+    it 'PC向け絵文字フィルタが適用されること' do
+      mock_app = mock('App')
+      mock_app.should_receive(:call).twice do |env|
+        [200, { "Content-Type" => "text/html"}, ["今日は良い天気ですね[e:000]"]]
+      end
+
+      middleware = Rack::Ketai::Middleware.new(mock_app, {})
+      middleware.call(@env)[2].should == ['今日は良い天気ですね[e:000]']
+
+      middleware = Rack::Ketai::Middleware.new(mock_app, { :emoticons_path => '/path-to/emoticons' })
+      middleware.call(@env)[2].should == ['今日は良い天気ですね<img src="/path-to/emoticons/sun.gif" />']
+    end
+
     it 'Rack::Ketai::Carrier::Android がセットされること' do
       @mobile.should be_is_a(Rack::Ketai::Carrier::Android)
     end

@@ -3,8 +3,12 @@
 require 'rack/ketai/carrier/mobile'
 
 module Rack::Ketai::Carrier
-  class Smartphone < Mobile
+  class Smartphone < General
     CIDRS = []
+
+    def mobile?
+      true
+    end
 
     def smartphone?
       true

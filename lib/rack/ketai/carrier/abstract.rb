@@ -87,8 +87,8 @@ module Rack::Ketai::Carrier
     def filtering(env, options = { }, &block)
       env = options[:disable_filter] ? env : filters(options).inject(env) { |env, filter| filter.inbound(env) }
       ret = block.call(env)
-      ret[2] = ret[2].body if ret[2].is_a?(Rack::Response)
-      options[:disable_filter] ? ret : filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
+      ret = options[:disable_filter] ? ret : filters(options).reverse.inject(ret) { |r, filter| filter.outbound(*r) }
+      ret
     end
 
     def filters(options = { })
@@ -156,5 +156,3 @@ module Rack::Ketai::Carrier
     end
   end
 end
-
-

@@ -1,7 +1,7 @@
 = rack-ketai: A Rack Middleware for Japanese mobile-phones
 
 == rack-ketaiとは
-携帯電話向けサイトを構築する際に役立ちそうな機能を提供する（ことが目標の）ミドルウェアです。
+携帯電話向けサイトを構築する際に役立ちそうな機能を提供する（ことが目標の）Rackミドルウェアです。
 
 * 携帯電話キャリア判別
 * 端末名の取得
@@ -26,7 +26,25 @@ JRuby 1.4.0
 
 == 使用例
 
-=== 携帯電話の識別
+=== Rails 3.0
+config/application.rb
+  module Example
+    class Application < Rails::Application
+      
+      # 省略
+
+      config.middleware.use "::Rack::Ketai"
+    end
+  end
+
+app/controllers/example_controller.rb
+  class ExampleController < ApplicationController
+    def index
+      render :text => (request.env['rack.ketai'].mobile? ? "mobile" : "PC")
+    end
+  end
+
+=== Sinatra
   require 'rubygems'
   require 'sinatra'
 

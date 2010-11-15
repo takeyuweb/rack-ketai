@@ -48,10 +48,12 @@ module Rack::Ketai::Carrier
       
       def to_external(status, headers, body)
         status, headers, body = super
-        return [status, headers, body] unless body[0]
+        return [status, headers, body] unless body
         
-        body = body.collect do |str|
-          str.gsub(/\[e:([0-9A-F]{3})\]/) do |match|
+        output = ''
+        (body.respond_to?(:each) ? body : [body]).each do |str|
+          next unless str
+          output << str.gsub(/\[e:([0-9A-F]{3})\]/) do |match|
             emojiid = $1.scanf('%X').first
             utf8str = EMOJIID_TO_EMOJI[emojiid]
             if utf8str
@@ -65,10 +67,18 @@ module Rack::Ketai::Carrier
           end
         end
         
-        content = (body.is_a?(Array) ? body[0] : body).to_s
-        headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
+        headers['Content-Length'] = (output.respond_to?(:bytesize) ? output.bytesize : output.size).to_s if headers.member?('Content-Length')
+
+        if headers['Content-Type']
+          case headers['Content-Type']
+          when /charset=[\w\-]+/i
+            headers['Content-Type'] = headers['Content-Type'].sub(/charset=[\w\-]+/, 'charset=utf-8')
+          else
+            headers['Content-Type'] = headers['Content-Type'] + "; charset=utf-8"
+          end
+        end
         
-        [status, headers, body]
+        [status, headers, [output]]
       end
     end
 

@@ -49,10 +49,10 @@ module Rack::Ketai::Carrier
       def to_external(status, headers, body)
         status, headers, body = super
         
-        return [status, headers, body] unless body[0]
-        
-        body = body.collect do |str|
-          str.gsub(/\[e:([0-9A-F]{3})\]/) do |match|
+        output = ''
+        (body.respond_to?(:each) ? body : [body]).each do |str|
+          next unless str
+          output << str.gsub(/\[e:([0-9A-F]{3})\]/) do |match|
             emojiid = $1.scanf('%X').first
             sjis = EMOJIID_TO_EMOJI[emojiid]
             if sjis
@@ -66,12 +66,11 @@ module Rack::Ketai::Carrier
           end
         end
         
-        content = (body.is_a?(Array) ? body[0] : body).to_s
-        headers['Content-Length'] = (content.respond_to?(:bytesize) ? content.bytesize : content.size).to_s if headers.member?('Content-Length')
+        headers['Content-Length'] = (output.respond_to?(:bytesize) ? output.bytesize : output.size).to_s if headers.member?('Content-Length')
         
-        headers['Content-Type'].sub! Regexp.new(Regexp.quote('text/html')), 'application/xhtml+xml' if headers['Content-Type']
+        headers['Content-Type'] = headers['Content-Type'].sub Regexp.new(Regexp.quote('text/html')), 'application/xhtml+xml' if headers['Content-Type']
 
-        [status, headers, body]
+        [status, headers, [output]]
       end
     end
       

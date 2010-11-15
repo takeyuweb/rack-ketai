@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rack-ketai}
-  s.version = "0.1.3"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yuichi Takeuchi"]
-  s.date = %q{2010-09-21}
+  s.date = %q{2010-11-15}
   s.email = %q{info@takeyu-web.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "lib/rack/ketai.rb",
      "lib/rack/ketai/carrier.rb",
      "lib/rack/ketai/carrier/abstract.rb",
+     "lib/rack/ketai/carrier/android.rb",
      "lib/rack/ketai/carrier/au.rb",
      "lib/rack/ketai/carrier/cidrs/au.rb",
      "lib/rack/ketai/carrier/cidrs/docomo.rb",
@@ -36,15 +37,19 @@ Gem::Specification.new do |s|
      "lib/rack/ketai/carrier/emoji/softbankwebcodetoutf8str.rb",
      "lib/rack/ketai/carrier/general.rb",
      "lib/rack/ketai/carrier/iphone.rb",
+     "lib/rack/ketai/carrier/mobile.rb",
+     "lib/rack/ketai/carrier/smartphone.rb",
      "lib/rack/ketai/carrier/softbank.rb",
      "lib/rack/ketai/carrier/specs/au.rb",
      "lib/rack/ketai/carrier/specs/docomo.rb",
      "lib/rack/ketai/carrier/specs/softbank.rb",
      "lib/rack/ketai/display.rb",
+     "lib/rack/ketai/filter.rb",
      "lib/rack/ketai/middleware.rb",
      "lib/rack/ketai/position.rb",
      "rack-ketai.gemspec",
      "spec/spec_helper.rb",
+     "spec/unit/android_spec.rb",
      "spec/unit/au_filter_spec.rb",
      "spec/unit/au_spec.rb",
      "spec/unit/carrier_spec.rb",
@@ -86,6 +91,7 @@ Gem::Specification.new do |s|
      "spec/unit/iphone_spec.rb",
      "spec/unit/softbank_spec.rb",
      "spec/unit/carrier_spec.rb",
+     "spec/unit/android_spec.rb",
      "spec/unit/emoticon_filter_spec.rb",
      "spec/spec_helper.rb",
      "test/spec_runner.rb"

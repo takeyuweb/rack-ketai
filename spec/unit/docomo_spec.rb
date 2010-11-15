@@ -125,6 +125,13 @@ describe "Rack::Ketai::Carrier::Docomo" do
       end
     end
 
+    it 'スマートフォンではないこと' do
+      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => "DoCoMo/2.0 SH02A")
+      mobile = Rack::Ketai::Carrier::Docomo.new(env)
+      mobile.should_not be_smartphone
+    end
+
     describe "ディスプレイ情報を取得できること" do
       
       it "既知の端末のとき" do           

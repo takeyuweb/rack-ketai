@@ -134,6 +134,25 @@ http://start.typepad.jp/typecast/
   use Rack::Ketai, :emoticons_path => '/images/emoticons'
   run MyApp.new
 
+=== スマートフォンへの対応
+現在のところ、UAによる判別のみ可能です。また、iPhone/iPod touch及びAndroid端末のみを想定しています。私はXperiaしか所持していないのでその他については動くかどうか不明です。
+
+次のようにして判別します。
+  if env['rack.ketai'].smartphone?
+    # スマートフォン
+  else
+    # 非スマートフォン
+  end
+または
+  case env['rack.ketai']
+  when Rack::Ketai::Carrier::IPhone
+    # iPhone
+  when Rack::Ketai::Carrier::Android
+    # Android
+  end
+
+端末名の取得なども未実装です。また、#valid_addr?は常に偽です。
+
 === 作者
 
 Copyright 2009-2010 (c) Yuichi Takeuchi, under MIT License

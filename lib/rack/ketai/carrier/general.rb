@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 # 一般的な環境（PCその他）
+# 現在はフィルタ用のみに利用
+# アプリ側では利用しないこと（できません）
 
 module Rack::Ketai::Carrier
   class General < Abstract
 
-    class EmoticonFilter < Rack::Ketai::Carrier::Abstract::Filter
+    class EmoticonFilter < Rack::Ketai::Filter
       EMOJIID_REGEXP = Regexp.new('\[e:([0-9A-F]{3})\]').freeze
       INSIDE_INPUT_TAG = Regexp.new('(<input\s.*?\svalue=")(.*?)(".*?>)').freeze
       INSIDE_TEXTAREA_TAG = Regexp.new('(<textarea\s.*?>)(.*?)(</textarea>)', Regexp::MULTILINE).freeze

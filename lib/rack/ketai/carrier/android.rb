@@ -3,9 +3,9 @@
 require 'rack/ketai/carrier/smartphone'
 
 module Rack::Ketai::Carrier
-  class IPhone < Smartphone
+  class Android < Smartphone
 
-    USER_AGENT_REGEXP = /iPhone|iPod/
+    USER_AGENT_REGEXP = /Android/
     
     def supports_cookie?
       true

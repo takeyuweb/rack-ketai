@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 require 'scanf'
 
+require 'rack/ketai/carrier/mobile'
+
 module Rack
   module Ketai
     module Carrier
-      class Au < Abstract
+      class Au < Mobile
         autoload :CIDRS, 'rack/ketai/carrier/cidrs/au'
         autoload :SPECS, 'rack/ketai/carrier/specs/au'
         
         USER_AGENT_REGEXP = /^(?:KDDI|UP.Browser\/.+?)-(.+?) /
   
-        class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter
+        class Filter < ::Rack::Ketai::SjisFilter
 
           # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
           # 複数の絵文字の組み合わせのものを前におくことで
@@ -77,10 +79,6 @@ module Rack
           def filters
             super | [Rack::Ketai::Carrier::Au::Filter]
           end
-        end
-
-        def mobile?
-          true
         end
 
         def subscriberid

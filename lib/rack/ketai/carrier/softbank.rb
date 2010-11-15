@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
+
 require 'scanf'
+require 'rack/ketai/carrier/mobile'
 
 module Rack::Ketai::Carrier
-  class Softbank < Abstract
+  class Softbank < Mobile
     autoload :CIDRS, 'rack/ketai/carrier/cidrs/softbank'
     autoload :SPECS, 'rack/ketai/carrier/specs/softbank'
     
     # Semulator はウェブコンテンツビューアのUA
     USER_AGENT_REGEXP = /^(?:Vodafone|SoftBank|Semulator)/
 
-    class Filter < ::Rack::Ketai::Carrier::Abstract::Filter
+    class Filter < ::Rack::Ketai::Filter
 
       # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
       # 複数の絵文字の組み合わせのものを前におくことで
@@ -77,10 +78,6 @@ module Rack::Ketai::Carrier
       end
     end
     
-    def mobile?
-      true
-    end
-
     def subscriberid
       @env['HTTP_X_JPHONE_UID'].to_s =~ /^([A-z|0-9]+)$/
       $1

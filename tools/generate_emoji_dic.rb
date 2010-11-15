@@ -388,29 +388,25 @@ output['emojidata'] = (<<-FILE)
 
 module Rack
   module Ketai
-    module Carrier
-      class Abstract
-        class Filter
-          EMOJI_DATA = {
+    class Filter
+      EMOJI_DATA = {
 FILE
 
 emoji.each do |id, data|
   emojiid = id.to_i(16)
-  output['emojidata'] += format("            0x%03X => #{data.inspect},\n", emojiid)
+  output['emojidata'] += format("        0x%03X => #{data.inspect},\n", emojiid)
 end
 
 output['emojidata'] += <<-EOF
-          }
+      }
 
-          # 1.8系、1.9系 互換性維持のため
-          if RUBY_VERSION >= '1.9.0'
-            def EMOJI_TO_EMOJIID.index(val)
-              key(val)
-            end
-          end
-          
+      # 1.8系、1.9系 互換性維持のため
+      if RUBY_VERSION >= '1.9.0'
+        def EMOJI_DATA.index(val)
+          key(val)
         end
       end
+         
     end
   end
 end

@@ -25,6 +25,9 @@ class Rack::Ketai::Middleware
       def obj.mobile?
         false
       end
+      def obj.smartphone?
+        false
+      end
       request.env['rack.ketai'] = obj      
     end
 

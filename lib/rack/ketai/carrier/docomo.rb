@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 require 'scanf'
+require 'rack/ketai/carrier/mobile'
 
 module Rack::Ketai::Carrier
-  class Docomo < Abstract
+  class Docomo < Mobile
     autoload :CIDRS, 'rack/ketai/carrier/cidrs/docomo'
     autoload :SPECS, 'rack/ketai/carrier/specs/docomo'
     
     USER_AGENT_REGEXP = /^DoCoMo/
 
-    class Filter < ::Rack::Ketai::Carrier::Abstract::SjisFilter
+    class Filter < ::Rack::Ketai::SjisFilter
 
       # 絵文字コード -> 絵文字ID 対応表から、絵文字コード検出用の正規表現をつくる
       # 複数の絵文字の組み合わせのものを前におくことで
@@ -80,10 +81,6 @@ module Rack::Ketai::Carrier
       end
     end
     
-    def mobile?
-      true
-    end
-
     # 端末個体識別子があれば返す。
     def deviceid
       case @env['HTTP_USER_AGENT']

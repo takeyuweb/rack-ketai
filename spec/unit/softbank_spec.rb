@@ -197,4 +197,11 @@ describe "Rack::Ketai::Carrier::Softbank" do
     end
   end
 
+  it 'スマートフォンではないこと' do
+    env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                    'HTTP_USER_AGENT' => 'SoftBank/1.0/930SH/SHJ001[/Serial] Browser/NetFront/3.4 Profile/MIDP-2.0 Configuration/CLDC-1.1')
+    mobile = Rack::Ketai::Carrier::Softbank.new(env)
+    mobile.should_not be_smartphone
+  end
+
 end

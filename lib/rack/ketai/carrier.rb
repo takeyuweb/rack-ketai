@@ -1,11 +1,11 @@
 module Rack::Ketai::Carrier
 
-  autoload :Abstract, 'rack/ketai/carrier/abstract'
   autoload :General, 'rack/ketai/carrier/general'
   autoload :Docomo, 'rack/ketai/carrier/docomo'
   autoload :Au, 'rack/ketai/carrier/au'
   autoload :Softbank, 'rack/ketai/carrier/softbank'
   autoload :IPhone, 'rack/ketai/carrier/iphone'
+  autoload :Android, 'rack/ketai/carrier/android'
 
   def self.load(env)
     constants.each do |const|

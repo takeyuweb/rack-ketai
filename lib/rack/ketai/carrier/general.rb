@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require 'rack/ketai/carrier/abstract'
+
 # 一般的な環境（PCその他）
 # 現在はフィルタ用のみに利用
 # アプリ側では利用しないこと（できません）

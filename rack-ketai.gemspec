@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rack-ketai}
-  s.version = "0.2.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yuichi Takeuchi"]
-  s.date = %q{2010-11-15}
+  s.date = %q{2010-11-16}
   s.email = %q{info@takeyu-web.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -88,6 +88,7 @@ Gem::Specification.new do |s|
      "spec/unit/docomo_spec.rb",
      "spec/unit/display_spec.rb",
      "spec/unit/docomo_filter_spec.rb",
+     "spec/unit/general_spec.rb",
      "spec/unit/iphone_spec.rb",
      "spec/unit/softbank_spec.rb",
      "spec/unit/carrier_spec.rb",

@@ -2,6 +2,15 @@
 require 'rack/ketai/carrier/docomo'
 describe "Rack::Ketai::Carrier::*.valid_addr? を使うとき" do
 
+  def proxy_from(proxy_addr, carrier, addr)
+    env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                    'HTTP_USER_AGENT' => 'DoCoMo/1.0/N505i/c20/TB/W24H12',
+                                    'HTTP_X_DCMGUID' => '0123abC',
+                                    'REMOTE_ADDR' => proxy_addr,
+                                    'HTTP_X_FORWARDED_FOR' => [addr, proxy_addr].join(', '))
+    carrier.new(env)
+  end
+
   def from(carrier, addr)
     env = Rack::MockRequest.env_for('http://hoge.com/dummy',
                                     'HTTP_USER_AGENT' => 'DoCoMo/1.0/N505i/c20/TB/W24H12',
@@ -64,6 +73,7 @@ describe "Rack::Ketai::Carrier::*.valid_addr? を使うとき" do
         from(klass, addrs.first.to_s).should be_valid_addr
         from(klass, addrs[(addrs.size - 1)/2].to_s).should be_valid_addr
         from(klass, addrs.last.to_s).should be_valid_addr
+        proxy_from('192.168.1.1', klass, addrs.first.to_s).should be_valid_addr # プロキシ越し
       end
     end
   end
@@ -78,6 +88,7 @@ describe "Rack::Ketai::Carrier::*.valid_addr? を使うとき" do
           from(klass, addrs.first.to_s).should_not be_valid_addr
           from(klass, addrs[(addrs.size - 1)/2].to_s).should_not be_valid_addr
           from(klass, addrs.last.to_s).should_not be_valid_addr
+          proxy_from('192.168.1.1', klass, addrs.first.to_s).should_not be_valid_addr # プロキシ越し
         end
       end
     end

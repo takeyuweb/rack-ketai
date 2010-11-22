@@ -141,7 +141,7 @@ module Rack::Ketai::Carrier
 
     # キャリアのIPアドレス帯を利用しているか
     def valid_addr?
-      self.class.valid_ip? @env['HTTP_X_FORWARDED_FOR'] || @env['REMOTE_ADDR']
+      self.class.valid_ip? @env['HTTP_X_FORWARDED_FOR'] ? @env['HTTP_X_FORWARDED_FOR'].sub(/,.+$/, '') : @env['REMOTE_ADDR']
     end
     alias :valid_ip? :valid_addr?
 

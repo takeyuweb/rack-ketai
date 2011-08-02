@@ -16,7 +16,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
   it "POSTデータ中のUTF-8バイナリの絵文字を絵文字IDに変換すること" do
     Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID.should_not be_empty
     Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID.each do |emoji, emojiid|
-      postdata = CGI.escape("message=今日はいい" + emoji + "ですね。")
+      postdata = "message=" + CGI.escape("今日はいい" + emoji + "ですね。")
       postdata.force_encoding('UTF-8') if postdata.respond_to?(:force_encoding)
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',
@@ -34,7 +34,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
     Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID.should_not be_empty
     Rack::Ketai::Carrier::Softbank::Filter::WEBCODE_TO_EMOJI.each do |webcode, emoji|
       emojiid = Rack::Ketai::Carrier::Softbank::Filter::EMOJI_TO_EMOJIID[emoji]
-      postdata = CGI.escape("message=今日はいい\x1B$" + webcode + "\x0Fですね。")
+      postdata = "message=" + CGI.escape("今日はいい\x1B$" + webcode + "\x0Fですね。")
       postdata.force_encoding('UTF-8') if postdata.respond_to?(:force_encoding)
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',
@@ -48,7 +48,7 @@ describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用す
   end
 
   it "POSTデータ中の連続するウェブコードの絵文字を絵文字IDに変換すること" do
-    postdata = CGI.escape("message=今日の天気は\x1B$Gji\x0Fです\x1B$ON\x0F")
+    postdata = "message=" + CGI.escape("今日の天気は\x1B$Gji\x0Fです\x1B$ON\x0F")
     postdata.force_encoding('UTF-8') if postdata.respond_to?(:force_encoding)
     
     env = Rack::MockRequest.env_for('http://hoge.com/dummy',

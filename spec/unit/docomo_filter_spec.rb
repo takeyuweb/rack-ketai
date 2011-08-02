@@ -10,7 +10,7 @@ describe Rack::Ketai::Carrier::Docomo::Filter, "内部エンコーディング�
   it "POSTデータ中のSJISバイナリの絵文字を絵文字IDに変換すること" do
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.should_not be_empty
     Rack::Ketai::Carrier::Docomo::Filter::EMOJI_TO_EMOJIID.each do |emoji, emojiid|
-      postdata = CGI.escape("message=今日はいい".tosjis + emoji + "ですね。".tosjis)
+      postdata = "message=" + CGI.escape("今日はいい".tosjis + emoji + "ですね。".tosjis)
       postdata.force_encoding('Shift_JIS') if postdata.respond_to?(:force_encoding)
       
       env = Rack::MockRequest.env_for('http://hoge.com/dummy',

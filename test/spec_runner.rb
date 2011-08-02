@@ -6,7 +6,10 @@ class SpecRunner < Test::Unit::TestCase
     begin
       require 'spec'
     rescue LoadError
-      retry if require "rubygems"
+      if require "rubygems"
+        gem 'rspec', '<2.0.0'
+        retry
+      end
       puts "All tests are skipped.(Please `gem install rspec`)"
       return
     end

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/position'
 
 describe "Rack::Ketai::Position" do

@@ -6,6 +6,7 @@ require 'rack/request'
 require 'stringio'
 require 'ipaddr'
 require 'rack/ketai/filter'
+require 'rack/ketai/middleware'
 
 unless IPAddr.instance_methods.include?("to_range")
   class IPAddr
@@ -102,8 +103,18 @@ module Rack::Ketai::Carrier
       false
     end
 
+    # フィーチャーフォンか
+    def featurephone?
+      false
+    end
+
     # スマートフォンか
     def smartphone?
+      false
+    end
+
+    # タブレットか
+    def tablet?
       false
     end
 

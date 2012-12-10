@@ -9,6 +9,10 @@ module Rack::Ketai::Carrier
       true
     end
 
+    def featurephone?
+      true
+    end
+
   end
 end
 

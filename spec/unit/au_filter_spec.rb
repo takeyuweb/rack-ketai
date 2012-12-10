@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'kconv'
 require 'rack/ketai/carrier/au'
 describe Rack::Ketai::Carrier::Au::Filter, "内部エンコーディングに変換する時" do

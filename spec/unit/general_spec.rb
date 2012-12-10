@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/general'
 describe "Rack::Ketai::Carrier::General" do
 

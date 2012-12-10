@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/iphone'
 describe "Rack::Ketai::Carrier::IPhone" do
 
@@ -34,6 +35,14 @@ describe "Rack::Ketai::Carrier::IPhone" do
 
     it 'スマートフォンであること' do
       @mobile.should be_smartphone
+    end
+
+    it 'フィーチャーフォンでないこと' do
+      @mobile.should_not be_featurephone
+    end
+
+    it 'タブレットでないこと' do
+      @mobile.should_not be_tablet
     end
 
     it "#supports_cookie? は true を返すこと" do
@@ -81,6 +90,14 @@ describe "Rack::Ketai::Carrier::IPhone" do
       @mobile.should be_smartphone
     end
 
+    it 'フィーチャーフォンでないこと' do
+      @mobile.should_not be_featurephone
+    end
+
+    it 'タブレットでないこと' do
+      @mobile.should_not be_tablet
+    end
+
     it "#supports_cookie? は true を返すこと" do
       @mobile.should be_respond_to(:supports_cookie?)
       @mobile.should be_supports_cookie
@@ -88,6 +105,33 @@ describe "Rack::Ketai::Carrier::IPhone" do
 
     it "#valid_addr? は false を返すこと" do
       @mobile.should_not be_valid_addr
+    end
+
+  end
+
+  describe 'iPadでのアクセスのとき' do
+    
+    before(:each) do
+      @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A403 Safari/8536.25',
+                                       'REMOTE_ADDR' => '126.240.0.41')
+      @mobile = Rack::Ketai::Carrier.load(@env)
+    end
+
+    it '携帯端末であること' do
+      @mobile.should be_mobile
+    end
+
+    it 'スマートフォンでないこと' do
+      @mobile.should_not be_smartphone
+    end
+
+    it 'フィーチャーフォンでないこと' do
+      @mobile.should_not be_featurephone
+    end
+
+    it 'タブレットであること' do
+      @mobile.should be_tablet
     end
 
   end

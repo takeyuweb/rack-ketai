@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/docomo'
 describe "Rack::Ketai::Carrier::*.valid_addr? を使うとき" do
 

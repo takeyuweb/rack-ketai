@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/android'
 describe "Rack::Ketai::Carrier::Android" do
 
@@ -32,8 +33,16 @@ describe "Rack::Ketai::Carrier::Android" do
       @mobile.should be_mobile
     end
 
+    it 'フィーチャーフォンでないこと' do
+      @mobile.should_not be_featurephone
+    end
+
     it 'スマートフォンであること' do
       @mobile.should be_smartphone
+    end
+
+    it 'タブレットでないこと' do
+      @mobile.should_not be_tablet
     end
 
     it "#supports_cookie? は true を返すこと" do
@@ -46,5 +55,61 @@ describe "Rack::Ketai::Carrier::Android" do
     end
 
   end
+
+  describe 'Androidタブレットでのアクセスのとき' do
+    
+    before(:each) do
+      @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'Mozilla/5.0 (Linux; U; Android 4.0.3; ja-jp; Sony Tablet S Build/TISU0R0110) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30',
+                                       'REMOTE_ADDR' => '211.2.176.39')
+      @mobile = Rack::Ketai::Carrier.load(@env)
+    end
+
+    it '携帯端末であること' do
+      @mobile.should be_mobile
+    end
+
+    it 'フィーチャーフォンでないこと' do
+      @mobile.should_not be_featurephone
+    end
+
+    it 'スマートフォンでないこと' do
+      @mobile.should_not be_smartphone
+    end
+
+    it 'タブレットであること' do
+      @mobile.should be_tablet
+    end
+
+  end
+
+  describe 'GalaxyTabでのアクセスのとき' do
+    
+    before(:each) do
+      @env = Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                       'HTTP_USER_AGENT' => 'Mozilla/5.0 (Linux; U; Android 2.2; ja-jp; SC-01C Build/FROYO)
+AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
+                                       'REMOTE_ADDR' => '211.2.176.39')
+      @mobile = Rack::Ketai::Carrier.load(@env)
+    end
+
+    it '携帯端末であること' do
+      @mobile.should be_mobile
+    end
+
+    it 'フィーチャーフォンでないこと' do
+      @mobile.should_not be_featurephone
+    end
+
+    it 'スマートフォンでないこと' do
+      @mobile.should_not be_smartphone
+    end
+
+    it 'タブレットであること' do
+      @mobile.should be_tablet
+    end
+
+  end
+
 
 end

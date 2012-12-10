@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'kconv'
 require 'rack/ketai/carrier/softbank'
 describe Rack::Ketai::Carrier::Softbank::Filter, "内部フィルタを適用する時" do

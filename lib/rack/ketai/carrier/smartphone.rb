@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'rack/ketai/carrier/mobile'
+require 'rack/ketai/carrier/general'
 
 module Rack::Ketai::Carrier
   class Smartphone < General

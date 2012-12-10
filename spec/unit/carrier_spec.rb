@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 
 describe Rack::Ketai::Carrier, "#load を実行するとき" do
 

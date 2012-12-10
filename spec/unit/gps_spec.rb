@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/docomo'
 
 describe "位置情報を取得するとき" do

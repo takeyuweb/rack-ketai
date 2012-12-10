@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/softbank'
 describe "Rack::Ketai::Carrier::Softbank" do
 
@@ -197,11 +198,22 @@ describe "Rack::Ketai::Carrier::Softbank" do
     end
   end
 
-  it 'スマートフォンではないこと' do
-    env = Rack::MockRequest.env_for('http://hoge.com/dummy',
-                                    'HTTP_USER_AGENT' => 'SoftBank/1.0/930SH/SHJ001[/Serial] Browser/NetFront/3.4 Profile/MIDP-2.0 Configuration/CLDC-1.1')
-    mobile = Rack::Ketai::Carrier::Softbank.new(env)
-    mobile.should_not be_smartphone
+  describe "種別判定" do
+    let(:env){Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                        'HTTP_USER_AGENT' => 'SoftBank/1.0/930SH/SHJ001[/Serial] Browser/NetFront/3.4 Profile/MIDP-2.0 Configuration/CLDC-1.1') }
+    let(:mobile){Rack::Ketai::Carrier::Softbank.new(env)}
+    it '携帯端末であること' do
+      mobile.should be_mobile
+    end
+    it 'フィーチャーフォンであること' do
+        mobile.should be_featurephone
+    end
+    it 'スマートフォンではないこと' do
+      mobile.should_not be_smartphone
+    end
+    it 'タブレットではないこと' do
+      mobile.should_not be_smartphone
+    end
   end
 
 end

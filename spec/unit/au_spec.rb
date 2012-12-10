@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/au'
 describe "Rack::Ketai::Carrier::Au" do
 
@@ -39,12 +40,23 @@ describe "Rack::Ketai::Carrier::Au" do
 
     end
 
-    it 'スマートフォンではないこと' do
-      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
-                                      'HTTP_USER_AGENT' => 'KDDI-HI3B UP.Browser/6.2.0.13.2 (GUI) MMP/2.0',
-                                      'HTTP_X_UP_DEVCAP_MAX_PDU' => '131072')
-      mobile = Rack::Ketai::Carrier::Au.new(env)
-      mobile.should_not be_smartphone
+    describe "種別判定" do
+      let(:env){Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                          'HTTP_USER_AGENT' => 'KDDI-HI3B UP.Browser/6.2.0.13.2 (GUI) MMP/2.0',
+                                          'HTTP_X_UP_DEVCAP_MAX_PDU' => '131072')}
+      let(:mobile){Rack::Ketai::Carrier::Au.new(env)}
+      it '携帯端末であること' do
+        mobile.should be_mobile
+      end
+      it 'フィーチャーフォンであること' do
+        mobile.should be_featurephone
+      end
+      it 'スマートフォンではないこと' do
+        mobile.should_not be_smartphone
+      end
+      it 'タブレットではないこと' do
+        mobile.should_not be_smartphone
+      end
     end
 
     describe "#cache_size でキャッシュ容量を取得するとき" do

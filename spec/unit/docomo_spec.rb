@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'spec_helper'
 require 'rack/ketai/carrier/docomo'
 describe "Rack::Ketai::Carrier::Docomo" do
 
@@ -125,12 +126,24 @@ describe "Rack::Ketai::Carrier::Docomo" do
       end
     end
 
-    it 'スマートフォンではないこと' do
-      env = Rack::MockRequest.env_for('http://hoge.com/dummy',
-                                       'HTTP_USER_AGENT' => "DoCoMo/2.0 SH02A")
-      mobile = Rack::Ketai::Carrier::Docomo.new(env)
-      mobile.should_not be_smartphone
+    describe "種別判定" do
+      let(:env){Rack::MockRequest.env_for('http://hoge.com/dummy',
+                                          'HTTP_USER_AGENT' => "DoCoMo/2.0 SH02A")}
+      let(:mobile){Rack::Ketai::Carrier::Docomo.new(env)}
+      it '携帯端末であること' do
+        mobile.should be_mobile
+      end
+      it 'フィーチャーフォンであること' do
+        mobile.should be_featurephone
+      end
+      it 'スマートフォンではないこと' do
+        mobile.should_not be_smartphone
+      end
+      it 'タブレットではないこと' do
+        mobile.should_not be_smartphone
+      end
     end
+    
 
     describe "ディスプレイ情報を取得できること" do
       

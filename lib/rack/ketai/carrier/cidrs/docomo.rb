@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
-# 2011.8.2時点
+# 2012.12.10時点
 
 Rack::Ketai::Carrier::Docomo::CIDRS = %w(
 210.153.84.0/24
